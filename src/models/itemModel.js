@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('../db/db.js');
 
 async function createItem({ name, price, amount, category_id }) {
   const query = `
