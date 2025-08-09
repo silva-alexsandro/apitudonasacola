@@ -10,10 +10,15 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(ownerMiddleware);
+app.use(ownerMiddleware.ownerMiddleware);
 
 app.use('/lists', listRoutes);
 app.use('/items', itemRoutes);
 app.use('/categories', categoryRoutes);
 
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Servidor rodando em http://localhost:${PORT}`);
+});
 module.exports = app;

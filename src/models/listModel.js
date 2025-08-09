@@ -22,13 +22,13 @@ async function getListsByOwner(owner) {
   return rows;
 }
 
-async function getListById(id, owner) {
+async function getListById(id) {
   const query = `
     SELECT id, name, created_at, owner
     FROM lists
-    WHERE id = $1 AND owner = $2
+    WHERE id = $1
   `;
-  const { rows } = await pool.query(query, [id, owner]);
+  const { rows } = await pool.query(query, [id]);
   return rows[0];
 }
 
@@ -41,6 +41,17 @@ async function getListsByName(name, owner) {
   `;
   const { rows } = await pool.query(query, [`%${name}%`, owner]);
   return rows;
+}
+async function updateList(id, owner, newName) {
+  const query = `
+    UPDATE lists
+    SET name = $3
+    WHERE id = $1 AND owner = $2
+    RETURNING id, name, created_at, owner
+  `;
+  const values = [id, owner, newName.trim()];
+  const { rows } = await pool.query(query, values);
+  return rows[0];
 }
 
 async function deleteListById(id, owner) {
@@ -58,5 +69,6 @@ module.exports = {
   getListsByOwner,
   getListById,
   getListsByName,
+  updateList,
   deleteListById,
 };

@@ -2,10 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 const listController = require('../controllers/listController');
+const { requireOwner, ownerMiddleware } = require('../middlewares/ownerMiddleware');
 
-router.post('/', listController.createList);
-router.get('/', listController.getLists);      // /lists?name=abc  ou /lists
+router.post('/', ownerMiddleware, listController.createList);
+router.get('/', requireOwner, listController.getAllList);
+router.get('/search', requireOwner, listController.getListsByName);
 router.get('/:id', listController.getListById);
-router.delete('/:id', listController.deleteList);
+router.delete('/:id', requireOwner, listController.deleteList);
+router.put('/:id', requireOwner, listController.updateList);
 
 module.exports = router;
