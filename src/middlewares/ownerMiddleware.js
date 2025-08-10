@@ -1,28 +1,36 @@
 const { v4: uuidv4 } = require('uuid');
+const { checkOwnerExists } = require('../models/ownerModel'); // Ajuste o caminho conforme seu projeto
 
-function requireOwner(req, res, next) {
+async function requireOwner(req, res, next) {
   try {
-    const owner = (req.headers && req.headers['owner-id']) || (req.body && req.body.owner);
+    // Pega owner do header 'owner-id' ou do body
+    const owner = req.headers['owner-id'] || req.body.owner;
+
     if (!owner) {
-      return res.status(400).json({ error: 'Owner obrigatório nesta rota.' });
+      return res.status(400).json({ error: 'Owner obrigatório no header ou no body.' });
     }
+
+    // Verifica se owner existe no banco
+    const exists = await checkOwnerExists(owner);
+
+    if (!exists) {
+      return res.status(404).json({ error: 'Owner não encontrado.' });
+    }
+
+    // Define owner na requisição
     req.owner = owner;
     next();
-  } catch (error) {
-    console.error('Erro no middleware requireOwner:', error);
-    return res.status(500).json({ error: 'Erro interno no middleware de autenticação.' });
+
+  } catch (err) {
+    console.error('Erro no middleware requireOwner:', err);
+    // Nunca quebrar o servidor, responde 500 mas não para o app
+    return res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 }
 
+// Middleware que cria um owner novo se não existir
 function ownerMiddleware(req, res, next) {
-  const headers = req.headers || {};
-  const body = req.body || {};
-
-  let owner = headers['owner-id'] || body.owner;
-
-  if (!owner) {
-    owner = uuidv4();
-  }
+  const owner = req.headers['owner-id'] || req.body.owner || uuidv4();
   req.owner = owner;
   next();
 }
