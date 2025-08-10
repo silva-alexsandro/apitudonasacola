@@ -19,5 +19,6 @@ build/
 # Mac OS
 .DS_Store
 
+teste.js
 # Editor VSCode
 .vscode/

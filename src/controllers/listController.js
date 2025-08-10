@@ -1,12 +1,12 @@
-const { validateListName } = require('../utils/validators');
-const listModel = require('../models/listModel');
+const { isValidListName } = require('../utils/validators.js');
+const listModel = require('../models/listModel.js');
 
 async function createList(req, res) {
   try {
     const { name } = req.body;
     const owner = req.owner;
 
-    if (!validateListName(name)) {
+    if (!isValidListName(name)) {
       return res.status(400).json({ error: 'Nome da lista precisa ter pelo menos 3 caracteres.' });
     }
 
@@ -20,7 +20,15 @@ async function createList(req, res) {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
-
+async function getOwners(req, res) {
+  try {
+    const owners = await listModel.getAllOwners();
+    res.json({ owners });
+  } catch (error) {
+    console.error('Erro ao buscar owners:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
 async function getAllList(req, res) {
   try {
     const owner = req.owner;
@@ -107,4 +115,5 @@ module.exports = {
   getListById,
   updateList,
   deleteList,
+  getOwners
 };
