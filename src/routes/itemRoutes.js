@@ -1,20 +1,13 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const itemController = require('../controllers/itemController');
+const { requireOwner } = require('../middlewares/ownerMiddleware');
 
-// CRUD básico
-router.post('/', itemController.createItem);
-router.get('/', itemController.getItems);          // /items?name=abc ou /items
-router.get('/:id', itemController.getItemById);
-router.put('/:id', itemController.updateItem);
-router.delete('/:id', itemController.deleteItem);
-
-// Associar / desassociar itens a listas
-router.post('/:itemId/lists/:listId', itemController.addItemToList);
-router.delete('/:itemId/lists/:listId', itemController.removeItemFromList);
-
-// Buscar itens de uma lista
-router.get('/list/:listId', itemController.getItemsByListId);
+// Todas rotas precisam do listId no path, ex: /lists/:listId/items
+router.post('/', requireOwner, itemController.createItem);
+router.get('/', requireOwner, itemController.getItemsByListId);
+router.put('/:itemId', requireOwner, itemController.updateItemRelation);
+router.delete('/:itemId', requireOwner, itemController.deleteItemFromList);
 
 module.exports = router;

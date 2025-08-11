@@ -12,12 +12,11 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/lists', listRoutes);
-app.use('/items', itemRoutes);
+app.use('/lists/:listId/items', itemRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/owners', ownerRoutes);
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`Servidor online - só usar! http://localhost:${PORT}`);
 });
