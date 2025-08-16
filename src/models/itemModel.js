@@ -1,38 +1,53 @@
 const pool = require('../db/db');
 
 async function createItem(listId, { name, price = null, amount = null, done = false }) {
-  const existingItemRes = await pool.query('SELECT id FROM items WHERE name = $1', [name]);
-  let itemId;
-  if (existingItemRes.rows.length === 0) {
-    const insertItemRes = await pool.query(
-      'INSERT INTO items (name, category_id) VALUES ($1, $2) RETURNING id',
-      [name]
+  const client = await pool.connect(); 
+  try {
+    await client.query('BEGIN');
+    const existingItemRes = await client.query('SELECT id FROM items WHERE name = $1', [name]);
+    let itemId;
+
+    if (existingItemRes.rows.length === 0) {
+      const insertItemRes = await client.query(
+        'INSERT INTO items (name) VALUES ($1) RETURNING id',
+        [name]
+      );
+      itemId = insertItemRes.rows[0].id;
+    } else {
+      itemId = existingItemRes.rows[0].id;
+    }
+
+    const relationRes = await client.query(
+      'SELECT * FROM list_items WHERE list_id = $1 AND item_id = $2',
+      [listId, itemId]
     );
-    itemId = insertItemRes.rows[0].id;
-  } else {
-    itemId = existingItemRes.rows[0].id;
+
+    if (relationRes.rows.length > 0) {
+      throw new Error('Este item já está associado a esta lista.');
+    }
+
+    await client.query(
+      `INSERT INTO list_items (list_id, item_id, price, amount, done)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [listId, itemId, price, amount, done]
+    );
+
+    await client.query('COMMIT');
+
+    return {
+      id: itemId,
+      name,
+      price,
+      amount,
+      done
+    };
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
-
-  const relationRes = await pool.query('SELECT * FROM list_items WHERE list_id = $1 AND item_id = $2', [listId, itemId]);
-
-  if (relationRes.rows.length > 0) {
-    throw new Error('Este item já está associado a esta lista.');
-  }
-
-  await pool.query(
-    `INSERT INTO list_items (list_id, item_id, price, amount, done)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [listId, itemId, price, amount, done]
-  );
-
-  return {
-    id: itemId,
-    name,
-    price,
-    amount,
-    done,
-
-  };
 }
 
 async function getItemsByListId(listId) {

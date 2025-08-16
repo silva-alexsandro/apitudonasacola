@@ -12,8 +12,7 @@ async function createList(req, res) {
     res.setHeader('owner-id', owner);
     res.status(201).json(newList);
   } catch (error) {
-    console.error('Erro ao criar lista:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(400).json({ error: 'Requisição invalida. verifique sua requisição' });
   }
 }
 async function getAllList(req, res) {
@@ -22,8 +21,7 @@ async function getAllList(req, res) {
     const lists = await listModel.getListsByOwner(owner);
     res.json(lists);
   } catch (error) {
-    console.error('Erro ao buscar listas:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(400).json({ error: 'Requisição invalida. verifique sua requisição' });
   }
 }
 async function getListsByName(req, res) {
@@ -38,7 +36,6 @@ async function getListsByName(req, res) {
     const lists = await listModel.getListsByName(name, owner);
     res.json(lists);
   } catch (error) {
-    console.error('Erro ao buscar listas por nome:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -51,7 +48,6 @@ async function getListById(req, res) {
 
     res.json(list);
   } catch (error) {
-    console.error('Erro ao buscar lista:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -73,7 +69,6 @@ async function updateList(req, res) {
 
     res.json(updatedList);
   } catch (error) {
-    console.error('Erro ao atualizar lista:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -87,7 +82,6 @@ async function deleteList(req, res) {
 
     res.json({ message: 'Lista deletada com sucesso.', id: deleted.id });
   } catch (error) {
-    console.error('Erro ao deletar lista:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }

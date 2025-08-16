@@ -15,8 +15,7 @@ async function requireOwner(req, res, next) {
     req.owner = owner;
     next();
   } catch (err) {
-    console.error('Erro no middleware requireOwner:', err);
-    return res.status(500).json({ error: 'Erro interno do servidor.' });
+    return res.status(400).json({ error: 'Requisição invalida. Necessario um owner id' });
   }
 }
 

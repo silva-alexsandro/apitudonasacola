@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
-const listRoutes = require('./routes/listRoutes');
-const itemRoutes = require('./routes/itemRoutes');
-const ownerRoutes = require('./routes/ownerRoutes');
+const listRoutes = require('./src/routes/listRoutes');
+const itemRoutes = require('./src/routes/itemRoutes');
+const ownerRoutes = require('./src/routes/ownerRoutes');
 
 const app = express();
 
