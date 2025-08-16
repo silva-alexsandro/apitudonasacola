@@ -1,10 +1,12 @@
-// db.js
-import pkg from 'pg';
-const { Pool } = pkg;
+// db.js - Configuração para Supabase
+const { Pool } = require('pg');
+require('dotenv').config();
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // O Supabase exige SSL
+  connectionString: process.env.SUPABASE_DB_URL,
+  ssl: { rejectUnauthorized: false },
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 2000,
 });
 
-export default pool;
+module.exports = pool;
