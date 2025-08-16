@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { checkOwnerExists } = require('../models/ownerModel'); // Ajuste o caminho conforme seu projeto
+const { checkOwnerExists } = require('../models/ownerModel');
 
 async function requireOwner(req, res, next) {
   try {

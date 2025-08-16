@@ -1,4 +1,4 @@
-const pool = require('../db/db.js');
+const pool = require('../../db.js');
 
 async function createList(name, owner) {
   const query = `

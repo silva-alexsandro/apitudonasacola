@@ -1,4 +1,4 @@
-const pool = require('../db/db.js');
+const pool = require('../../db.js');
 
 // Retorna um array com todos os owners distintos
 async function getAllOwners() {

@@ -6,7 +6,7 @@ async function getOwners(req, res) {
     const owners = await ownerModel.getAllOwners();
     res.json({ owners });
   } catch (error) {
-    console.error('Erro ao buscar owners:', error);
+    console.log('Erro ao buscar owners:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }

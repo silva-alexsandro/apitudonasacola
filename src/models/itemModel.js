@@ -1,4 +1,4 @@
-const pool = require('../db/db');
+const pool = require('../../db.js');
 
 async function createItem(listId, { name, price = null, amount = null, done = false }) {
   const client = await pool.connect(); 
