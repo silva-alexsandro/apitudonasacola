@@ -1,12 +1,10 @@
-const { Pool } = require('pg');
-require('dotenv').config();
+// db.js
+import pkg from 'pg';
+const { Pool } = pkg;
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // O Supabase exige SSL
 });
 
-module.exports = pool;
+export default pool;
