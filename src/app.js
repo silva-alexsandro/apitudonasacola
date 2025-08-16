@@ -3,7 +3,6 @@ const cors = require('cors');
 
 const listRoutes = require('./routes/listRoutes');
 const itemRoutes = require('./routes/itemRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
 const ownerRoutes = require('./routes/ownerRoutes');
 
 const app = express();
@@ -13,7 +12,6 @@ app.use(express.json());
 
 app.use('/lists', listRoutes);
 app.use('/lists/:listId/items', itemRoutes);
-app.use('/categories', categoryRoutes);
 app.use('/owners', ownerRoutes);
 
 const PORT = process.env.PORT || 3000;

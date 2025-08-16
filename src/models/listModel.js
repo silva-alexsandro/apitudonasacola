@@ -63,15 +63,7 @@ async function deleteListById(id, owner) {
   const { rows } = await pool.query(query, [id, owner]);
   return rows[0];
 }
-async function getAllOwners() {
-  const query = `
-    SELECT DISTINCT owner
-    FROM lists
-    ORDER BY owner
-  `;
-  const { rows } = await pool.query(query);
-  return rows.map(row => row.owner);
-}
+
 module.exports = {
   createList,
   getListsByOwner,
@@ -79,5 +71,4 @@ module.exports = {
   getListsByName,
   updateList,
   deleteListById,
-  getAllOwners,
 };

@@ -1,32 +1,24 @@
 const pool = require('../db/db');
 
-async function createItem(listId, { name, price = null, amount = null, done = false, categoryId = null }) {
-  // 1. Verifica se o item já existe pelo nome globalmente
+async function createItem(listId, { name, price = null, amount = null, done = false }) {
   const existingItemRes = await pool.query('SELECT id FROM items WHERE name = $1', [name]);
   let itemId;
-
   if (existingItemRes.rows.length === 0) {
-    // Cria o item global
     const insertItemRes = await pool.query(
       'INSERT INTO items (name, category_id) VALUES ($1, $2) RETURNING id',
-      [name, categoryId]
+      [name]
     );
     itemId = insertItemRes.rows[0].id;
   } else {
     itemId = existingItemRes.rows[0].id;
   }
 
-  // 2. Verifica se já existe associação do item com essa lista
-  const relationRes = await pool.query(
-    'SELECT * FROM list_items WHERE list_id = $1 AND item_id = $2',
-    [listId, itemId]
-  );
+  const relationRes = await pool.query('SELECT * FROM list_items WHERE list_id = $1 AND item_id = $2', [listId, itemId]);
 
   if (relationRes.rows.length > 0) {
     throw new Error('Este item já está associado a esta lista.');
   }
 
-  // 3. Associa o item à lista com price, amount e done
   await pool.query(
     `INSERT INTO list_items (list_id, item_id, price, amount, done)
      VALUES ($1, $2, $3, $4, $5)`,
@@ -39,7 +31,7 @@ async function createItem(listId, { name, price = null, amount = null, done = fa
     price,
     amount,
     done,
-    categoryId
+
   };
 }
 

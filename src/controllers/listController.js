@@ -5,27 +5,14 @@ async function createList(req, res) {
   try {
     const { name } = req.body;
     const owner = req.owner;
-
     if (!isValidListName(name)) {
       return res.status(400).json({ error: 'Nome da lista precisa ter pelo menos 3 caracteres.' });
     }
-
     const newList = await listModel.createList(name, owner);
-
     res.setHeader('owner-id', owner);
-
     res.status(201).json(newList);
   } catch (error) {
     console.error('Erro ao criar lista:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
-  }
-}
-async function getOwners(req, res) {
-  try {
-    const owners = await listModel.getAllOwners();
-    res.json({ owners });
-  } catch (error) {
-    console.error('Erro ao buscar owners:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -55,7 +42,6 @@ async function getListsByName(req, res) {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
-
 async function getListById(req, res) {
   try {
     const { id } = req.params;
@@ -69,7 +55,6 @@ async function getListById(req, res) {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
-
 async function updateList(req, res) {
   try {
     const { id } = req.params;
@@ -92,7 +77,6 @@ async function updateList(req, res) {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
-
 async function deleteList(req, res) {
   try {
     const owner = req.owner;
@@ -115,5 +99,4 @@ module.exports = {
   getListById,
   updateList,
   deleteList,
-  getOwners
 };

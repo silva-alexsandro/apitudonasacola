@@ -14,7 +14,6 @@ A API está atualmente alocada e rodando no [Render](https://render.com).
 - Adição e remoção de itens em listas
 - Marcar itens como comprados (done)
 - Relação muitos-para-muitos entre listas e itens
-- Cálculo do total de itens, itens comprados e valor total da compra
 - Middleware para controle de propriedade (owner) das listas e itens
 
 ---
@@ -23,7 +22,7 @@ A API está atualmente alocada e rodando no [Render](https://render.com).
 
 - Node.js
 - Express
-- Banco de dados  PostgreSQL
+- Banco de dados PostgreSQL
 - Cors
 - dotenv
 - uuid
@@ -33,36 +32,27 @@ A API está atualmente alocada e rodando no [Render](https://render.com).
 sql
 CREATE DATABASE tudonasacola;
 
-DROP TABLE IF EXISTS list_items;
-DROP TABLE IF EXISTS items;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS lists;
-
-CREATE TABLE categories (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE items (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    price NUMERIC(10,2),
-    amount VARCHAR(50),
-    category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL
-);
-
-CREATE TABLE lists (
+CREATE TABLE IF NOT EXISTS lists (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     owner UUID NOT NULL
 );
 
-CREATE TABLE list_items (
+CREATE TABLE IF NOT EXISTS items (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS list_items (
     list_id INTEGER REFERENCES lists(id) ON DELETE CASCADE,
     item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
+    price NUMERIC(10,2),
+    amount VARCHAR(50),
+    done BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (list_id, item_id)
 );
+
 ```
 
 ## Instalação

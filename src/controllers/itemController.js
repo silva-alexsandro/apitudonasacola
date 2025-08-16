@@ -3,13 +3,12 @@ const itemModel = require('../models/itemModel');
 async function createItem(req, res) {
   try {
     const { listId } = req.params;
-    const { name, price, amount, done, categoryId } = req.body;
+    const { name, price, amount } = req.body;
 
     if (!name || name.trim().length === 0) {
       return res.status(400).json({ error: 'Nome do item é obrigatório.' });
     }
-
-    const item = await itemModel.createItem(listId, { name: name.trim(), price, amount, done, categoryId });
+    const item = await itemModel.createItem(listId, { name: name.trim(), price, amount});
     return res.status(201).json(item);
   } catch (error) {
     console.error('Erro ao criar item:', error);
