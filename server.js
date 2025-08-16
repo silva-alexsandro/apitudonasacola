@@ -7,7 +7,10 @@ const ownerRoutes = require('./src/routes/ownerRoutes');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  allowedHeaders: ['Content-Type', 'owner-id']
+}));
 app.use(express.json());
 
 app.use('/lists', listRoutes);
