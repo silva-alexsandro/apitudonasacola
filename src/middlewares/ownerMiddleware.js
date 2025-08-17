@@ -1,3 +1,4 @@
+const { checkOwnerExists } = require('../db/ownerQueries'); // Você precisará implementar esta função
 const { v4: uuidv4, validate: isUuid } = require('uuid');
 function getOwnerFromHeaders(req) {
   const authHeader =
@@ -27,8 +28,6 @@ async function requireOwner(req, res, next) {
     return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
 }
-const { v4: uuidv4, validate: isUuid } = require('uuid');
-const { checkOwnerExists } = require('../db/ownerQueries'); // Você precisará implementar esta função
 
 async function ownerMiddleware(req, res, next) {
   try {
