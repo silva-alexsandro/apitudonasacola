@@ -52,7 +52,7 @@ async function createItem(listId, { name, price = null, amount = null, done = fa
 
 async function getItemsByListId(listId) {
   const query = `
-    SELECT i.id, i.name, i.category_id,
+    SELECT i.id, i.name, 
            li.price, li.amount, li.done
     FROM items i
     JOIN list_items li ON i.id = li.item_id
