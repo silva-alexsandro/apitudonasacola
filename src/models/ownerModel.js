@@ -1,6 +1,6 @@
 const pool = require('../../db.js');
+const { validate: isUuid } = require('uuid');
 
-// Retorna um array com todos os owners distintos
 async function getAllOwners() {
   const query = `
     SELECT DISTINCT owner
@@ -11,8 +11,8 @@ async function getAllOwners() {
   return rows.map(row => row.owner);
 }
 
-// Função para verificar se um owner existe (retorna true ou false)
 async function checkOwnerExists(ownerId) {
+  if (!isUuid(ownerId)) return false;
   const query = `
     SELECT 1
     FROM lists

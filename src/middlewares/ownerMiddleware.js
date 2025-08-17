@@ -1,26 +1,32 @@
-const { v4: uuidv4 } = require('uuid');
-const { checkOwnerExists } = require('../models/ownerModel');
+const { v4: uuidv4, validate: isUuid } = require('uuid');
 
+// Middleware para rotas que precisam de owner
 async function requireOwner(req, res, next) {
   try {
-    const owner = req.headers['owner-id'] || req.body.owner;
+    const owner = (req.headers['owner-id'] || '').trim();
+
     if (!owner) {
-      return res.status(400).json({ error: 'Owner obrigatório no header ou no body.' });
+      return res.status(400).json({ error: 'Owner obrigatório no header.' });
     }
-    // Verifica se owner existe no banco
-    const exists = await checkOwnerExists(owner);
-    if (!exists) {
-      return res.status(404).json({ error: 'Owner não encontrado.' });
+
+    if (!isUuid(owner)) {
+      return res.status(400).json({ error: 'Owner inválido.' });
     }
     req.owner = owner;
     next();
   } catch (err) {
-    return res.status(400).json({ error: 'Requisição invalida. Necessario um owner id' });
+    console.error(err);
+    return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
 }
 
 function ownerMiddleware(req, res, next) {
-  const owner = req.headers['owner-id'] || req.body.owner || uuidv4();
+  let owner = req.headers['owner-id'] || req.body.owner;
+
+  if (!owner) {
+    owner = uuidv4();
+  }
+
   req.owner = owner;
   next();
 }
