@@ -1,5 +1,6 @@
-const { checkOwnerExists } = require('../db/ownerQueries'); // Você precisará implementar esta função
 const { v4: uuidv4, validate: isUuid } = require('uuid');
+const { checkOwnerExists } = require('../models/ownerModel');
+
 function getOwnerFromHeaders(req) {
   const authHeader =
     req.headers['Owner-ID'] || // Seu formato original
