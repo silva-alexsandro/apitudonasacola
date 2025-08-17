@@ -3,7 +3,7 @@ const { v4: uuidv4, validate: isUuid } = require('uuid');
 // Middleware para rotas que precisam de owner
 async function requireOwner(req, res, next) {
   try {
-    const owner = (req.headers['owner-id'] || '').trim();
+    const owner = (req.headers['Authorization'] || '').trim();
 
     if (!owner) {
       return res.status(400).json({ error: 'Owner obrigatório no header.' });
@@ -21,7 +21,7 @@ async function requireOwner(req, res, next) {
 }
 
 function ownerMiddleware(req, res, next) {
-  let owner = req.headers['owner-id'] || req.body.owner;
+  let owner = req.headers['Authorization'] || req.body.owner;
 
   if (!owner) {
     owner = uuidv4();
