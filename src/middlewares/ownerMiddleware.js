@@ -1,9 +1,17 @@
 const { v4: uuidv4, validate: isUuid } = require('uuid');
+function getOwnerFromHeaders(req) {
+  const authHeader =
+    req.headers['Owner-ID'] || // Seu formato original
+    req.headers['owner-id'] || // Versão lowercase
+    req.headers['Authorization'] ||
+    req.headers['authorization'];
 
-// Middleware para rotas que precisam de owner
+  return authHeader?.replace('Bearer ', '').trim() || '';
+}
+
 async function requireOwner(req, res, next) {
   try {
-    const owner = (req.headers['Authorization'] || '').trim();
+    const owner = getOwnerFromHeaders(req);
 
     if (!owner) {
       return res.status(400).json({ error: 'Owner obrigatório no header.' });
