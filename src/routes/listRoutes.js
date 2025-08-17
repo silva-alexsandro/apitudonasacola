@@ -12,8 +12,4 @@ router.get('/search', requireOwner, listController.getListsByName);
 router.delete('/:id', requireOwner, listController.deleteList);
 router.put('/:id', requireOwner, listController.updateList);
 
-
-module.exports = router;
-
-
 module.exports = router;
