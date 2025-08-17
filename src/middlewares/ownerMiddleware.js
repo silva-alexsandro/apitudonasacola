@@ -27,17 +27,38 @@ async function requireOwner(req, res, next) {
     return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
 }
+const { v4: uuidv4, validate: isUuid } = require('uuid');
+const { checkOwnerExists } = require('../db/ownerQueries'); // Você precisará implementar esta função
 
-function ownerMiddleware(req, res, next) {
-  let owner = req.headers['Authorization'] || req.body.owner;
+async function ownerMiddleware(req, res, next) {
+  try {
+    let owner = getOwnerFromHeaders(req);
+    if (owner.startsWith('Bearer ')) {
+      owner = owner.slice(7);
+    }
 
-  if (!owner) {
-    owner = uuidv4();
+    if (owner && !isUuid(owner)) {
+      return res.status(400).json({ error: 'Formato de owner inválido' });
+    }
+
+    if (!owner) {
+      owner = uuidv4();
+    }
+    else {
+      const ownerExists = await checkOwnerExists(owner);
+      if (!ownerExists) {
+        owner = uuidv4();
+      }
+    }
+    req.owner = owner;
+    next();
+  } catch (err) {
+    console.error('Erro no ownerMiddleware:', err);
+    return res.status(500).json({ error: 'Erro interno no servidor' });
   }
-
-  req.owner = owner;
-  next();
 }
+
+module.exports = ownerMiddleware;
 
 module.exports = {
   requireOwner,
