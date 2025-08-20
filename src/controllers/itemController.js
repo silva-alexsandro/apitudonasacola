@@ -8,7 +8,7 @@ async function createItem(req, res) {
     if (!name || name.trim().length === 0) {
       return res.status(400).json({ error: 'Nome do item é obrigatório.' });
     }
-    const item = await itemModel.createItem(listId, { name: name.trim(), price, amount});
+    const item = await itemModel.createItem(listId, { name: name.trim().toLowerCase(), price, amount});
     return res.status(201).json(item);
   } catch (error) {
     console.error('Erro ao criar item:', error);
