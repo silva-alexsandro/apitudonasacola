@@ -22,3 +22,5 @@ build/
 teste.js
 # Editor VSCode
 .vscode/
+
+/src/generated/prisma
