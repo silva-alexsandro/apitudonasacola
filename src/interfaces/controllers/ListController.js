@@ -12,9 +12,9 @@ export class ListController {
   createList = async (req, res) => {
     try {
       const { name } = req.body;
-      const owner = req.owner;
-      const result = await this.createListUseCase.execute({ name, owner });
-      res.setHeader('owner-id', owner);
+      const ownerId = req.owner?.id;
+      const result = await this.createListUseCase.execute({ name, ownerId });
+      res.setHeader('owner_id', result.owner_id);
       res.status(201).json(result);
     } catch (err) {
       if (err.message.includes('Já existe uma lista com esse nome criada hoje.')) {
@@ -26,8 +26,8 @@ export class ListController {
 
   getAllLists = async (req, res) => {
     try {
-      const { owner } = req;
-      const lists = await this.getAllListsUseCase.execute(owner.id);
+      const ownerId = req.owner.id;
+      const lists = await this.getAllListsUseCase.execute(ownerId);
       res.status(200).json(lists);
     } catch (err) {
       res.status(500).json({ error: 'Erro ao buscar listas' });

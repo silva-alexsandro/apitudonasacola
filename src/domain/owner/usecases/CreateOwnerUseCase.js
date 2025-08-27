@@ -5,7 +5,6 @@ export class CreateOwnerUseCase {
   constructor(ownerRepository) {
     this.ownerRepository = ownerRepository;
   }
-
   async execute() {
     const owner = new Owner({ id: uuidv4() });
     return await this.ownerRepository.create(owner);

@@ -4,6 +4,7 @@ export class UpdateLastActiveUseCase {
   }
 
   async execute(id) {
+    console.log('execute lastactive: ', id)
     return await this.ownerRepository.updateLastActive(id);
   }
 }

@@ -5,13 +5,18 @@ import { GetAllListsUseCase } from '../../domain/list/usecases/GetAllListsUseCas
 import { ListController } from '../../interfaces/controllers/ListController.js';
 import { UpdateListsUseCase } from '../../domain/list/usecases/UpdateListUseCase.js';
 import { DeleteListsUseCase } from '../../domain/list/usecases/DeleteListUseCase.js';
+import { makeOwnerController } from './ownerControllerFactory.js';
 
 export function makeListController() {
   const listRepository = new ListRepository(new DbClient());
-  const createListUseCase = new CreateListUseCase(listRepository);
-  const getAllListsUseCase = new GetAllListsUseCase(listRepository);
-  const updateListsUseCase = new UpdateListsUseCase(listRepository);
-  const deleteListsUseCase = new DeleteListsUseCase(listRepository);
+  const ownerController = makeOwnerController();
+
+  const deps = { listRepository, ownerController };
+
+  const createListUseCase = new CreateListUseCase(deps);
+  const getAllListsUseCase = new GetAllListsUseCase(deps);
+  const updateListsUseCase = new UpdateListsUseCase(deps);
+  const deleteListsUseCase = new DeleteListsUseCase(deps);
 
   return new ListController(createListUseCase, getAllListsUseCase, updateListsUseCase, deleteListsUseCase);
 }

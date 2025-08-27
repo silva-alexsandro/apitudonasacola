@@ -1,9 +1,6 @@
 import { validate } from 'uuid';
 import { makeOwnerController } from "../../app/factories/ownerControllerFactory.js";
 
-
-const { createOwnerUseCase, getOwnerByIdUseCase, updateLastActiveUseCase } = makeOwnerController();
-
 function getOwnerFromHeaders(req) {
   const headerValue =
     req.headers['Owner-ID'] ||
@@ -22,22 +19,20 @@ function getOwnerFromHeaders(req) {
 export async function ownerMiddleware(req, res, next) {
   try {
     let owner = getOwnerFromHeaders(req);
+    const ownerController = makeOwnerController();
     if (!owner) {
-      req.owner = await createOwnerUseCase.execute();
+      req.owner;
       return next();
     }
-    if (!validate(owner)) {
-      return res.status(400).json({ error: 'UUID de owner inválido' });
-    }
-    const existingOwner = await getOwnerByIdUseCase.execute(owner);
-    if (!existingOwner) {
-      const created = await createOwnerUseCase.execute();
-      req.owner = created.id;
-    } else {
-      await updateLastActiveUseCase.execute(existingOwner.id);
-      req.owner = existingOwner;
-    }
+    if (!validate(owner)) { return res.status(400).json({ error: 'Owner inválido' }); }
 
+    const existingOwner = await ownerController.findById(owner);
+    if (!existingOwner) {
+      const created = await ownerController.createOwner();
+      req.owner = created;
+      return next();
+    }
+    req.owner = existingOwner;
     next();
   } catch (err) {
     res.status(500).json({

@@ -4,7 +4,7 @@ import { CreateOwnerUseCase } from '../../domain/owner/usecases/CreateOwnerUseCa
 import { GetOwnerByIdUseCase } from '../../domain/owner/usecases/GetOwnerByIdUseCase.js';
 import { UpdateLastActiveUseCase } from '../../domain/owner/usecases/UpdateLastActiveUseCase.js';
 import { GetOwnerAllUseCase } from '../../domain/owner/usecases/GetOwnerAllUseCase.js';
-
+import { OwnerController } from '../../interfaces/controllers/OwnerController.js'
 export function makeOwnerController() {
   const ownerRepository = new OwnerRepository(new DbClient());
   const createOwnerUseCase = new CreateOwnerUseCase(ownerRepository);
@@ -12,10 +12,10 @@ export function makeOwnerController() {
   const getOwnerAllUseCase = new GetOwnerAllUseCase(ownerRepository);
   const updateLastActiveUseCase = new UpdateLastActiveUseCase(ownerRepository);
 
-  return {
+  return new OwnerController(
     createOwnerUseCase,
     getOwnerByIdUseCase,
     updateLastActiveUseCase,
     getOwnerAllUseCase
-  };
+  );
 }

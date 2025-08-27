@@ -59,14 +59,14 @@ export class ListRepository extends IListRepository {
     return rows[0];
   }
 
-  async findById(listId, ownerId = null) {
+  async findById(listId, ownerId) {
     let query = `
     SELECT id, name, is_archived, is_favorite, owner_id, created_at, updated_at
     FROM lists
     WHERE id = $1
   `;
     const params = [listId];
-    if (ownerId !== null) {
+    if (ownerId !== null && ownerId !== undefined) {
       query += ` AND owner_id = $2`;
       params.push(ownerId);
     }
@@ -107,14 +107,18 @@ export class ListRepository extends IListRepository {
   }
 
   async findByNameAndOwnerAndDateRange(name, ownerId, startOfDay, endOfDay) {
-    const query = `
+    let query = `
     SELECT id FROM lists
-    WHERE owner_id = $1
-      AND name = $2
-      AND created_at >= $3
-      AND created_at < $4
+    WHERE name = $1
+      AND created_at >= $2
+      AND created_at < $3
   `;
-    const { rows } = await this.db.query(query, [ownerId, name, startOfDay, endOfDay]);
+    const params = [name, startOfDay, endOfDay];
+    if (ownerId !== null && ownerId !== undefined) {
+      query += ' AND owner_id = $4';
+      params.push(ownerId);
+    }
+    const { rows } = await this.db.query(query, params);
     return rows[0];
   }
 }
