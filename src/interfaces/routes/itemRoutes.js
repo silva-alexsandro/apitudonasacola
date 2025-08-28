@@ -8,7 +8,7 @@ const itemController = makeItemController(); // Aqui estamos criando o controlad
 
 router.post('/', ownerMiddleware, itemController.create);
 router.get('/', ownerMiddleware, itemController.getAllItems);
-router.put('/:id', ownerMiddleware, itemController.updateItem);
-router.delete('/:id', ownerMiddleware, itemController.delete);
+router.put('/item/:id', ownerMiddleware, itemController.updateItem);
+router.delete('/item/:id', ownerMiddleware, itemController.delete);
 
 export default router;
