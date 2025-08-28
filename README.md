@@ -18,11 +18,16 @@ A API está atualmente alocada e rodando no [Render](https://render.com).
 * [x] flag como lista favorita
 * [x] flag como arquivada
 * [x] deletar todas as listas criadas
+* [x] deletar lista por id
 
 ### Items
 * [x] Adição e remoção de itens em listas
-* [x] Marcar itens como comprados (done)
+* [x] Marcar itens como comprados
+* [x] Calcular somatorio de valores de items marcado como comprados
 * [x] Relação muitos-para-muitos entre listas e itens
+
+### Stats
+* [x] consulta no banco a quantidade cadastrada de owner, list, item
 
 ### Comaprtilhamento com permissoes
 * [] trabalhando nisso
