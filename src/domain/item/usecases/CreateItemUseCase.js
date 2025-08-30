@@ -3,15 +3,17 @@ import {
   isValidPrice,
   isValidAmount,
   isValidDone,
-  isValidUnit
+  isValidUnit,
+  isValidCategoryId
 } from '../../../shared/utils/validators.js';
 
 export class CreateItemUseCase {
-  constructor(itemRepository) {
+  constructor(itemRepository, categoryRepository) {
     this.itemRepository = itemRepository;
+    this.categoryRepository = categoryRepository;
   }
 
-  async execute(listId, { name, price, unit, category, amount, done }) {
+  async execute(listId, { name, price, unit, category_id, amount, done }) {
     if (!isValidItemName(name)) {
       throw new Error('Nome do item é inválido (mínimo 3 caracteres).');
     }
@@ -28,6 +30,16 @@ export class CreateItemUseCase {
       throw new Error('Unidade inválida. Use uma das opções: G KG ML L UN DZ LATA GARRAFA CX PCT');
     }
 
+    if (!isValidCategoryId(category_id)) {
+      throw new Error('id da categoria é inválida.');
+    }
+    const categoryObj = await this.categoryRepository.findById(category_id);
+
+    if (!categoryObj) {
+      throw new Error('Categoria não encontrada. Use uma categoria existente.');
+    }
+
+
     let item = await this.itemRepository.findByName(name);
     if (!item) {
       item = await this.itemRepository.create(name.toLowerCase());
@@ -37,7 +49,14 @@ export class CreateItemUseCase {
     if (relation) {
       throw new Error('Este item já está associado a esta lista.');
     }
-
-    return await this.itemRepository.createRelation(listId, item.id, price, amount, unit, done);
+    return await this.itemRepository.createRelation(
+      listId,
+      item.id,
+      price,
+      amount,
+      unit,
+      done,
+      category_id
+    );
   }
 }

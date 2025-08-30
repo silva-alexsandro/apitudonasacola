@@ -23,37 +23,35 @@ export class ItemRepository extends IItemRepository {
     );
     return rows[0] || null;
   }
-  async createRelation(listId, itemId, price, amount, unit, done) {
-    await this.db.query(
-      `INSERT INTO list_items (list_id, item_id, price, amount, unit, done)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-      [listId, itemId, price, amount, unit, done]
+  async createRelation(listId, itemId, price, amount, unit, done, category_id = null) {
+    const { rows } = await this.db.query(
+      `INSERT INTO list_items (list_id, item_id, price, amount, unit, done, category_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [listId, itemId, price, amount, unit, done, category_id]
     );
-    return { listId, itemId, price, amount, unit, done };
+    return rows[0];
   }
   async update(listId, itemId, updateData) {
     const fields = [];
     const values = [];
     let index = 1;
 
-    if (updateData.price !== undefined) {
-      fields.push(`price = $${index++}`);
-      values.push(updateData.price);
-    }
+    const fieldMappings = {
+      price: 'price',
+      amount: 'amount',
+      done: 'done',
+      unit: 'unit',
+      category_id: 'category_id'
+    };
 
-    if (updateData.amount !== undefined) {
-      fields.push(`amount = $${index++}`);
-      values.push(updateData.amount);
-    }
+    Object.keys(fieldMappings).forEach(key => {
+      if (updateData[key] !== undefined) {
+        fields.push(`${fieldMappings[key]} = $${index}`);
+        values.push(updateData[key]);
+        index++;
+      }
+    });
 
-    if (updateData.done !== undefined) {
-      fields.push(`done = $${index++}`);
-      values.push(updateData.done);
-    }
-    if (updateData.unit !== undefined) {
-      fields.push(`unit = $${index++}`);
-      values.push(updateData.unit);
-    }
     if (fields.length === 0) return null;
 
     fields.push(`updated_at = NOW()`);
@@ -61,26 +59,17 @@ export class ItemRepository extends IItemRepository {
     const query = `
     UPDATE list_items
     SET ${fields.join(', ')}
-    WHERE list_id = $${index++} AND item_id = $${index}
-    RETURNING *
+    WHERE list_id = $${index} AND item_id = $${index + 1}
+    RETURNING *,
+      (SELECT name FROM categories WHERE id = list_items.category_id) as category_name
   `;
+
     values.push(listId, itemId);
 
     const { rows } = await this.db.query(query, values);
     return rows[0] || null;
   }
-
-  async getItemsByListId(listId, ownerId, itemId = null) {
-    const conditions = ['li.list_id = $1'];
-    const params = [listId];
-    let paramIndex = 1;
-
-    if (itemId) {
-      paramIndex++;
-      conditions.push(`i.id = $${paramIndex}`);
-      params.push(itemId);
-    }
-
+  async getItemsByListId(listId) {
     const query = `
     SELECT 
       i.id, 
@@ -89,14 +78,16 @@ export class ItemRepository extends IItemRepository {
       li.amount, 
       li.done, 
       li.unit,
-      li.category_id
+      li.category_id,
+      c.name as category_name
     FROM items i
     JOIN list_items li ON i.id = li.item_id
     JOIN lists l ON li.list_id = l.id
-    WHERE ${conditions.join(' AND ')}
+    LEFT JOIN categories c ON li.category_id = c.id
+    WHERE li.list_id = $1
   `;
 
-    const { rows } = await this.db.query(query, params);
+    const { rows } = await this.db.query(query, [listId]);
     return rows;
   }
   async deleteItemFromList(listId, itemId) {

@@ -9,15 +9,14 @@ export class ItemController {
   create = async (req, res) => {
     try {
       const { listId } = req.params;
-      const { name, price, amount, unit, done  } = req.body;
+      const { name, price, amount, unit, category_id, done } = req.body;
       if (!listId) { throw new Error("listId não foi fornecido na URL."); }
-      const result = await this.createItem.execute(listId, { name, price, unit,  amount, done });
+      const result = await this.createItem.execute(listId, { name, price, unit, category_id, amount, done });
       res.status(201).json(result);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   }
-
   getAllItems = async (req, res, next) => {
     try {
       const { listId, id: itemId } = req.params;
@@ -28,14 +27,11 @@ export class ItemController {
       next(error);
     }
   }
-
   updateItem = async (req, res, next) => {
     try {
       const { listId, id: itemId } = req.params;
       const updateData = req.body;
       const ownerId = req.owner;
-
-      console.log(':', listId, itemId, updateData, ownerId, '000-')
       const updatedItem = await this.updateItemUseCase.execute(listId, itemId, updateData, ownerId.id);
       if (!updatedItem) {
         return res.status(404).json({ error: 'Item não encontrado na lista' });
@@ -45,7 +41,6 @@ export class ItemController {
       next(error);
     }
   }
-
   delete = async (req, res, next) => {
     try {
       const { listId, id: itemId } = req.params;

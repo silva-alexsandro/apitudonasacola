@@ -5,7 +5,6 @@ export class GetAllItemsUseCase {
   }
 
   async execute(listId, ownerId, itemId = null) {
-
     const list = await this.listRepository.findById(listId);
     if (!list) {
       throw new Error('Lista não encontrada.');

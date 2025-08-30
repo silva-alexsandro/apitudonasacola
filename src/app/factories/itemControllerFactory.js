@@ -6,12 +6,14 @@ import { ItemRepository } from '../../infrastructure/persistence/ItemRepository.
 import { ItemController } from '../../interfaces/controllers/ItemController.js';
 import { DbClient } from '../../../db.js';
 import { ListRepository } from '../../infrastructure/persistence/ListRepository.js';
+import { CategoryRepository } from '../../infrastructure/persistence/CategoryRepository.js';
 
 export function makeItemController() {
   const dbClient = new DbClient();
   const listRepository = new ListRepository(dbClient);
   const itemRepository = new ItemRepository(dbClient);
-  const createItemUseCase = new CreateItemUseCase(itemRepository);
+  const categoryRepo = new CategoryRepository(dbClient);
+  const createItemUseCase = new CreateItemUseCase(itemRepository, categoryRepo);
   const getAllItemsUseCase = new GetAllItemsUseCase(itemRepository, listRepository);
   const updateItemsUseCase = new UpdateItemUseCase(itemRepository, listRepository);
   const deleteItemsUseCase = new DeleteItemsUseCase(itemRepository, listRepository);

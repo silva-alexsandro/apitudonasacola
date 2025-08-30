@@ -5,6 +5,17 @@ export function isValidItemName(name) {
   return true;
 }
 
+export function isValidCategoryId(categoryId) {
+  return categoryId === null || (Number.isInteger(categoryId) && categoryId > 0);
+}
+
+export function isValidCategoryName(name) {
+  if (!name) return false;
+  if (typeof name !== 'string') return false;
+  if (name.trim().length < 2) return false;
+  if (name.trim().length > 100) return false;
+  return true;
+}
 export function isValidPrice(price) {
   return typeof price === 'number' && price >= 0;
 }
@@ -36,7 +47,7 @@ export function isEmptyListUpdate(name, is_archived, is_favorite) {
 
 export function isEmptyItemUpdate(data) {
   if (!data || typeof data !== 'object') return true;
-  const validKeys = ['price', 'amount', 'done', 'unit'];
+  const validKeys = ['price', 'amount', 'done', 'unit', 'category_id'];
   return !validKeys.some(key => key in data);
 }
 export function validateItemUpdate(data) {
@@ -54,6 +65,9 @@ export function validateItemUpdate(data) {
 
   if (data.done !== undefined && !isValidDone(data.done)) {
     throw new Error('O campo "done" deve ser verdadeiro ou falso.');
+  }
+    if (data.category !== undefined && !isValidCategoryId(data.category)) {
+    throw new Error('ID da categoria é inválido.');
   }
   if (data.unit !== undefined && !isValidUnit(data.unit)) {
     throw new Error('Unidade inválida. Use uma das opções: G, KG, ML, L, UN, DZ, PC, CX, PCT.');
