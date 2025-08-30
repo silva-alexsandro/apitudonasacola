@@ -16,6 +16,10 @@ export function isValidAmount(amount) {
 export function isValidDone(done) {
   return typeof done === 'boolean';
 }
+export function isValidUnit(unit) {
+  const allowedUnits = ['g', 'kg', 'ml', 'l', 'un', 'dz', 'lata', 'garrafa', 'cx', 'pct'];
+  return typeof unit === 'string' && allowedUnits.includes(unit);
+}
 
 export function isValidListName(name) {
   if (!name) return false;
@@ -32,7 +36,7 @@ export function isEmptyListUpdate(name, is_archived, is_favorite) {
 
 export function isEmptyItemUpdate(data) {
   if (!data || typeof data !== 'object') return true;
-  const validKeys = ['price', 'amount', 'done'];
+  const validKeys = ['price', 'amount', 'done', 'unit'];
   return !validKeys.some(key => key in data);
 }
 export function validateItemUpdate(data) {
@@ -50,5 +54,8 @@ export function validateItemUpdate(data) {
 
   if (data.done !== undefined && !isValidDone(data.done)) {
     throw new Error('O campo "done" deve ser verdadeiro ou falso.');
+  }
+  if (data.unit !== undefined && !isValidUnit(data.unit)) {
+    throw new Error('Unidade inválida. Use uma das opções: G, KG, ML, L, UN, DZ, PC, CX, PCT.');
   }
 }

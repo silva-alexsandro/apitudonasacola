@@ -23,13 +23,13 @@ export class ItemRepository extends IItemRepository {
     );
     return rows[0] || null;
   }
-  async createRelation(listId, itemId, price, amount, done) {
+  async createRelation(listId, itemId, price, amount, unit, done) {
     await this.db.query(
-      `INSERT INTO list_items (list_id, item_id, price, amount, done)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [listId, itemId, price, amount, done]
+      `INSERT INTO list_items (list_id, item_id, price, amount, unit, done)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+      [listId, itemId, price, amount, unit, done]
     );
-    return { listId, itemId, price, amount, done };
+    return { listId, itemId, price, amount, unit, done };
   }
   async update(listId, itemId, updateData) {
     const fields = [];
@@ -50,7 +50,10 @@ export class ItemRepository extends IItemRepository {
       fields.push(`done = $${index++}`);
       values.push(updateData.done);
     }
-
+    if (updateData.unit !== undefined) {
+      fields.push(`unit = $${index++}`);
+      values.push(updateData.unit);
+    }
     if (fields.length === 0) return null;
 
     fields.push(`updated_at = NOW()`);
@@ -68,19 +71,31 @@ export class ItemRepository extends IItemRepository {
   }
 
   async getItemsByListId(listId, ownerId, itemId = null) {
-    let query = `
-    SELECT i.id, i.name, li.price, li.amount, li.done
+    const conditions = ['li.list_id = $1'];
+    const params = [listId];
+    let paramIndex = 1;
+
+    if (itemId) {
+      paramIndex++;
+      conditions.push(`i.id = $${paramIndex}`);
+      params.push(itemId);
+    }
+
+    const query = `
+    SELECT 
+      i.id, 
+      i.name, 
+      li.price, 
+      li.amount, 
+      li.done, 
+      li.unit,
+      li.category_id
     FROM items i
     JOIN list_items li ON i.id = li.item_id
     JOIN lists l ON li.list_id = l.id
-    WHERE li.list_id = $1
-      AND l.owner_id = $2
+    WHERE ${conditions.join(' AND ')}
   `;
-    const params = [listId, ownerId];
-    if (itemId) {
-      query += ` AND i.id = $3`;
-      params.push(itemId);
-    }
+
     const { rows } = await this.db.query(query, params);
     return rows;
   }

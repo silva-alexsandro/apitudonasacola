@@ -7,9 +7,7 @@ export class UpdateItemUseCase {
   }
 
   async execute(listId, itemId, updateData, ownerId) {
-    console.log(':', listId, itemId, updateData, ownerId, '000-')
-
-    if (!await this.listRepository.findById(listId, ownerId)) {
+       if (!await this.listRepository.findById(listId, ownerId)) {
       throw new Error('Lista não encontrada ou você não tem permissão para atualizar itens.');
     }
     validateItemUpdate(updateData);

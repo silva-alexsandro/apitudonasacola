@@ -9,9 +9,9 @@ export class ItemController {
   create = async (req, res) => {
     try {
       const { listId } = req.params;
-      const { name, price, amount, done = false } = req.body;
+      const { name, price, amount, unit, done  } = req.body;
       if (!listId) { throw new Error("listId não foi fornecido na URL."); }
-      const result = await this.createItem.execute(listId, { name, price, amount, done });
+      const result = await this.createItem.execute(listId, { name, price, unit,  amount, done });
       res.status(201).json(result);
     } catch (error) {
       res.status(400).json({ message: error.message });

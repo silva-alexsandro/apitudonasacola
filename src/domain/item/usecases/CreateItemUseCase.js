@@ -2,7 +2,8 @@ import {
   isValidItemName,
   isValidPrice,
   isValidAmount,
-  isValidDone
+  isValidDone,
+  isValidUnit
 } from '../../../shared/utils/validators.js';
 
 export class CreateItemUseCase {
@@ -10,7 +11,7 @@ export class CreateItemUseCase {
     this.itemRepository = itemRepository;
   }
 
-  async execute(listId, { name, price = 0, amount = 1, done = false }) {
+  async execute(listId, { name, price, unit, category, amount, done }) {
     if (!isValidItemName(name)) {
       throw new Error('Nome do item é inválido (mínimo 3 caracteres).');
     }
@@ -23,6 +24,9 @@ export class CreateItemUseCase {
     if (!isValidDone(done)) {
       throw new Error('O campo "done" deve ser verdadeiro ou falso.');
     }
+    if (!isValidUnit(unit)) {
+      throw new Error('Unidade inválida. Use uma das opções: G KG ML L UN DZ LATA GARRAFA CX PCT');
+    }
 
     let item = await this.itemRepository.findByName(name);
     if (!item) {
@@ -34,6 +38,6 @@ export class CreateItemUseCase {
       throw new Error('Este item já está associado a esta lista.');
     }
 
-    return await this.itemRepository.createRelation(listId, item.id, price, amount, done);
+    return await this.itemRepository.createRelation(listId, item.id, price, amount, unit, done);
   }
 }
