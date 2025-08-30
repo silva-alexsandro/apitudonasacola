@@ -11,15 +11,15 @@ export function makeItemController() {
   const dbClient = new DbClient();
   const listRepository = new ListRepository(dbClient);
   const itemRepository = new ItemRepository(dbClient);
-  const createListUseCase = new CreateItemUseCase(itemRepository);
-  const getAllListsUseCase = new GetAllItemsUseCase(itemRepository, listRepository);
-  const updateListsUseCase = new UpdateItemUseCase(itemRepository, listRepository);
-  const deleteListsUseCase = new DeleteItemsUseCase(itemRepository, listRepository);
+  const createItemUseCase = new CreateItemUseCase(itemRepository);
+  const getAllItemsUseCase = new GetAllItemsUseCase(itemRepository, listRepository);
+  const updateItemsUseCase = new UpdateItemUseCase(itemRepository, listRepository);
+  const deleteItemsUseCase = new DeleteItemsUseCase(itemRepository, listRepository);
 
   return new ItemController(
-    createListUseCase,
-    getAllListsUseCase,
-    updateListsUseCase,
-    deleteListsUseCase
+    createItemUseCase,
+    getAllItemsUseCase,
+    updateItemsUseCase,
+    deleteItemsUseCase
   );
 }

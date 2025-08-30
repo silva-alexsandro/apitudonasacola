@@ -3,6 +3,7 @@ import cors from 'cors';
 import listRoutes from './src/interfaces/routes/listRoutes.js';
 import itemRoutes from './src/interfaces/routes/itemRoutes.js';
 import statsRoutes from './src/interfaces/routes/statsRoutes.js';
+import categoryRoutes from './src/interfaces/routes/categoryRoutes.js';
 
 const app = express();
 
@@ -17,10 +18,11 @@ app.use(express.json());
 app.use('/list', listRoutes);
 app.use('/list/:listId', itemRoutes);
 app.use('/stats', statsRoutes);
+app.use('/category', categoryRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor online - tudonassacola-api! http://localhost:${PORT}`);
+  console.log(`api tudo na sacola on! http://localhost:${PORT}`);
 });
 
 export default app;

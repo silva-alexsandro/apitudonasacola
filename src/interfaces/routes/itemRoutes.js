@@ -4,7 +4,7 @@ import { makeItemController } from '../../app/factories/itemControllerFactory.js
 
 const router = Router({ mergeParams: true });
 
-const itemController = makeItemController(); // Aqui estamos criando o controlador com os casos de uso
+const itemController = makeItemController(); 
 
 router.post('/', ownerMiddleware, itemController.create);
 router.get('/', ownerMiddleware, itemController.getAllItems);
