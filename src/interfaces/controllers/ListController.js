@@ -1,12 +1,14 @@
+import { ListShareDTO } from "../../domain/list/dto/ListShareDTO.js";
 import { parseBoolean } from "../../shared/utils/parsers.js";
 import { isEmptyListUpdate } from "../../shared/utils/validators.js";
 
 export class ListController {
-  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase) {
+  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase, createShare) {
     this.createListUseCase = createListUseCase;
     this.getAllListsUseCase = getAllListsUseCase;
     this.updateListUseCase = updateListUseCase;
     this.deleteListsUseCase = deleteListsUseCase;
+    this.createListShare = createShare;
   }
 
   createList = async (req, res) => {
@@ -84,6 +86,17 @@ export class ListController {
     } catch (err) {
       console.error('Erro ao deletar lista(s):', err);
       return res.status(500).json({ error: 'Erro ao deletar lista(s).' });
+    }
+  };
+
+  createShare = async (req, res) => {
+    try {
+      const ownerId = req.owner?.id;
+      const dto = new ListShareDTO(req.body);
+      const listShareDTO = await this.createListShare.execute(dto);
+      res.status(201).json(listShareDTO);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
     }
   };
 }
