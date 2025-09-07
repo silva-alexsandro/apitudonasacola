@@ -1,3 +1,4 @@
+import { Category } from '../../domain/category/entities/category.js';
 import { ICategoryRepository } from '../../domain/category/repositories/ICategoryRepository.js';
 
 export class CategoryRepository extends ICategoryRepository {
@@ -8,8 +9,8 @@ export class CategoryRepository extends ICategoryRepository {
 
   async findByName(name) {
     const query = 'SELECT * FROM categories WHERE name = $1';
-    const result = await this.db.query(query, [name]);
-    return result.rows[0];
+    const { rows } = await this.db.query(query, [name]);
+    return new Category(rows[0]);
   }
 
   async findAll() {
@@ -20,8 +21,8 @@ export class CategoryRepository extends ICategoryRepository {
 
   async findById(id) {
     const query = 'SELECT * FROM categories WHERE id = $1';
-    const result = await this.db.query(query, [id]);
-    return result.rows[0];
+    const { rows } = await this.db.query(query, [id]);
+    return new Category(rows[0]);
   }
 
 }

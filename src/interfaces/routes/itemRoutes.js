@@ -7,8 +7,8 @@ const router = Router({ mergeParams: true });
 const itemController = makeItemController(); 
 
 router.post('/', ownerMiddleware, itemController.create);
-router.get('/', ownerMiddleware, itemController.getAllItems);
-router.put('/item/:id', ownerMiddleware, itemController.updateItem);
-router.delete('/item/:id', ownerMiddleware, itemController.delete);
+router.get('/', ownerMiddleware, itemController.getAll);
+router.put('/item/:id', ownerMiddleware, itemController.update);
+router.delete('/item/:id', ownerMiddleware, itemController.remove);
 
 export default router;

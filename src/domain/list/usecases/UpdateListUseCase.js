@@ -1,12 +1,12 @@
-import { BaseListUseCase } from '../../common/BaseListUseCase.js';
+import { ListDTO } from '../dto/ListDTO.js';
 
-export class UpdateListsUseCase extends BaseListUseCase {
-  constructor(deps) {
-    super(deps);
+export class UpdateListUseCase {
+  constructor(listRepository) {
+    this.listRepository = listRepository;
   }
 
   async execute(listId, ownerId, updateData) {
-     await this.ownerController.upLastActive(ownerId);
-    return await this.listRepository.updateList(listId, ownerId, updateData);
+    const updated = await this.listRepository.updateList(listId, ownerId, updateData);
+    return updated ? new ListDTO(updated) : null;
   }
 }

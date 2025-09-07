@@ -1,18 +1,21 @@
+import { ListItemDTO } from "../dto/ListItemDTO.js";
+
 export class GetAllItemsUseCase {
-  constructor(itemRepository, listRepository) {
-    this.itemRepository = itemRepository;
-    this.listRepository = listRepository;
+  constructor(listRepo, listItemRepo) {
+    this.listRepo = listRepo;
+    this.listItemRepo = listItemRepo
   }
 
-  async execute(listId, ownerId, itemId = null) {
-    const list = await this.listRepository.findById(listId);
+  async execute(listId, ownerId) {
+    const list = await this.listRepo.findById(listId);
     if (!list) {
       throw new Error('Lista não encontrada.');
     }
-    if (list.owner_id !== ownerId) {
+
+    if (list.ownerId !== ownerId) {
       throw new Error('Você não tem permissão para acessar esta lista.');
     }
-    const items = await this.itemRepository.getItemsByListId(listId, ownerId, itemId);
-    return items;
+    const items = await this.listItemRepo.getItemsByListId(listId);
+    return items.map(item => new ListItemDTO(item));
   }
 }

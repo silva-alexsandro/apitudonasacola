@@ -10,12 +10,26 @@ export class OwnerController {
   }
 
   createOwner = async () => {
-    const result = await this.createOwnerUseCase.execute();
-    return result
+    const ownerDTO = await this.createOwnerUseCase.execute();
+    return ownerDTO;
   };
+  getOwnerByIdHttp = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const ownerDTO = await this.getOwnerByIdUseCase.execute(id);
+
+      if (!ownerDTO) {
+        return res.status(404).json({ error: 'Owner not found' });
+      }
+
+      return res.status(200).json(ownerDTO);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
   findById = async (ownerId) => {
-    const result = await this.getOwnerByIdUseCase.execute(ownerId);
-    return result
+    const ownerDTO = await this.getOwnerByIdUseCase.execute(ownerId);
+    return ownerDTO;
   }
   getAll = async (req, res) => {
     try {

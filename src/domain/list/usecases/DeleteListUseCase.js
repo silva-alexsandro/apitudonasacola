@@ -1,15 +1,16 @@
-import { BaseListUseCase } from '../../common/BaseListUseCase.js';
+import { ListDTO } from "../dto/ListDTO.js";
 
-export class DeleteListsUseCase extends BaseListUseCase {
-  constructor(deps) {
-    super(deps);
+export class DeleteListsUseCase {
+  constructor(listRepository) {
+    this.listRepository = listRepository;
   }
   async execute(ownerId, listId = null) {
-    await this.ownerController.upLastActive(ownerId);
     if (listId) {
-      return await this.listRepository.deleteListById(ownerId, listId);
-    } else {
-      return await this.listRepository.deleteLists(ownerId);
+      const deleted = await this.listRepository.deleteListById(listId, ownerId);
+      return deleted ? new ListDTO(deleted) : null;
     }
+
+    const deletedLists = await this.listRepository.deleteLists(ownerId);
+    return deletedLists.map(list => new ListDTO(list));
   }
 }

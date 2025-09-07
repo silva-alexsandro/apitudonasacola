@@ -1,9 +1,9 @@
 export class ItemController {
-  constructor(createItemUseCase, getAllItemsUseCase, updateItemUseCase, deleteItemsUseCase) {
-    this.createItem = createItemUseCase;
-    this.getAllItemsUseCase = getAllItemsUseCase;
-    this.updateItemUseCase = updateItemUseCase;
-    this.deleteItemsUseCase = deleteItemsUseCase;
+  constructor(create, getAll, update, remove) {
+    this.createItem = create;
+    this.getAllItemsUseCase = getAll;
+    this.updateItemUseCase = update;
+    this.deleteItemsUseCase = remove;
   }
 
   create = async (req, res) => {
@@ -11,37 +11,47 @@ export class ItemController {
       const { listId } = req.params;
       const { name, price, amount, unit, category_id, done } = req.body;
       if (!listId) { throw new Error("listId não foi fornecido na URL."); }
-      const result = await this.createItem.execute(listId, { name, price, unit, category_id, amount, done });
-      res.status(201).json(result);
+      const listItemDto = await this.createItem.execute(listId, { name, price, unit, category_id, amount, done });
+      res.status(201).json(listItemDto);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   }
-  getAllItems = async (req, res, next) => {
+  getAll = async (req, res, next) => {
     try {
-      const { listId, id: itemId } = req.params;
+      const { listId } = req.params;
       const owner = req.owner;
       const items = await this.getAllItemsUseCase.execute(listId, owner.id);
-      res.json(items);
+      res.status(200).json(items);
     } catch (error) {
-      next(error);
+      res.status(404).json({ message: error.message });
     }
   }
-  updateItem = async (req, res, next) => {
+
+  update = async (req, res, next) => {
     try {
       const { listId, id: itemId } = req.params;
       const updateData = req.body;
       const ownerId = req.owner;
-      const updatedItem = await this.updateItemUseCase.execute(listId, itemId, updateData, ownerId.id);
-      if (!updatedItem) {
+
+      const updatedItemDTO = await this.updateItemUseCase.execute(
+        listId,
+        itemId,
+        updateData,
+        ownerId.id
+      );
+
+      if (!updatedItemDTO) {
         return res.status(404).json({ error: 'Item não encontrado na lista' });
       }
-      res.json(updatedItem);
+
+      res.json(updatedItemDTO);
     } catch (error) {
       next(error);
     }
   }
-  delete = async (req, res, next) => {
+
+  remove = async (req, res, next) => {
     try {
       const { listId, id: itemId } = req.params;
       const ownerId = req.owner;

@@ -3,80 +3,61 @@ import {
   isValidAmount,
   isValidDone,
   isValidUnit,
-  isValidCategoryName,
   validateItemUpdate
 } from '../../../shared/utils/validators.js';
+import { ListItemDTO } from '../dto/ListItemDTO.js';
 
 export class UpdateItemUseCase {
-  constructor(itemRepository, listRepository, categoryRepository) {
-    this.itemRepository = itemRepository;
+  constructor(listRepository, listItemRepo, getCategoryById) {
     this.listRepository = listRepository;
-    this.categoryRepository = categoryRepository;
+    this.listItemRepo = listItemRepo;
+    this.getCategoryById = getCategoryById;
   }
 
   async execute(listId, itemId, updateData, ownerId) {
-    // Validar se o usuário tem permissão para editar esta lista
-    const list = await this.listRepository.findById(listId);
-    if (!list || list.owner_id !== ownerId) {
+    // 1. Verifica se a lista existe e pertence ao usuário
+    const list = await this.listRepository.findById(listId, ownerId);
+    if (!list || list.ownerId !== ownerId) {
       throw new Error('Lista não encontrada ou sem permissão para editar');
     }
 
-    // Converter tipos antes da validação
+    // 2. Processar tipos de dados
     const processedData = { ...updateData };
-    
-    // Converter price para número se existir
+
     if (processedData.price !== undefined) {
       processedData.price = Number(processedData.price);
     }
-    
-    // Converter amount para número se existir
+
     if (processedData.amount !== undefined) {
       processedData.amount = Number(processedData.amount);
     }
-    
-    // Converter done para boolean se for string
-    if (processedData.done !== undefined && typeof processedData.done === 'string') {
+
+    if (typeof processedData.done === 'string') {
       processedData.done = processedData.done.toLowerCase() === 'true';
     }
 
-    // Validar dados processados
+    // 3. Validação geral
     validateItemUpdate(processedData);
 
-    let category_id = undefined;
-
-    // Processar categoria se for fornecida
-    if (processedData.category !== undefined) {
-      if (processedData.category === null || processedData.category === '') {
+    // 4. Processar categoria (com ID)
+    if ('category_id' in processedData) {
+      if (processedData.category_id === null || processedData.category_id === '') {
         // Remover categoria
-        category_id = null;
+        processedData.category_id = null;
       } else {
-        if (!isValidCategoryName(processedData.category)) {
-          throw new Error('Nome da categoria é inválido (mínimo 2 caracteres, máximo 100).');
+        const category = await this.getCategoryById(processedData.category_id);
+
+        if (!category) {
+          throw new Error('Categoria não encontrada.');
         }
 
-        // Buscar categoria existente - NÃO cria se não existir
-        const categoryObj = await this.categoryRepository.findByName(
-          processedData.category.trim().toLowerCase()
-        );
-        
-        if (!categoryObj) {
-          throw new Error('Categoria não encontrada. Use uma categoria existente.');
-        }
-        
-        // Verificar se a categoria pertence ao usuário (opcional)
-        if (categoryObj.owner_id !== ownerId) {
+        if (category.owner_id !== ownerId) {
           throw new Error('Categoria não pertence ao usuário.');
         }
-        
-        category_id = categoryObj.id;
       }
-      
-      // Substituir o campo category por category_id
-      processedData.category_id = category_id;
-      delete processedData.category;
     }
 
-    // Validar outros campos (já convertidos)
+    // 5. Validação de campos individuais
     if (processedData.price !== undefined && !isValidPrice(processedData.price)) {
       throw new Error('Preço inválido');
     }
@@ -93,12 +74,15 @@ export class UpdateItemUseCase {
       throw new Error('Unidade inválida');
     }
 
-    const updatedItem = await this.itemRepository.update(listId, itemId, processedData);
-    
+    // 6. Atualizar o item
+    const updatedItem = await this.listItemRepo.update(listId, itemId, processedData);
+
     if (!updatedItem) {
       throw new Error('Item não encontrado na lista.');
     }
 
-    return updatedItem;
+    // 7. Retornar DTO
+    return new ListItemDTO(updatedItem);
   }
 }
+ 

@@ -1,9 +1,22 @@
+import { List } from '../../domain/list/entities/List.js';
 import { IListRepository } from '../../domain/list/repositories/IListRepository.js';
 
 export class ListRepository extends IListRepository {
   constructor(dbClient) {
     super();
     this.db = dbClient;
+  }
+
+  mapToList({ id, name, is_archived, is_favorite, owner_id, created_at, updated_at }) {
+    return new List({
+      id,
+      name,
+      archived: is_archived,
+      favorite: is_favorite,
+      ownerId: owner_id,
+      createdAt: created_at,
+      updatedAt: updated_at
+    });
   }
 
   async updateList(listId, ownerId, updateData) {
@@ -16,17 +29,17 @@ export class ListRepository extends IListRepository {
       values.push(updateData.name);
     }
 
-    if (updateData.is_archived !== undefined) {
+    if (updateData.archived !== undefined) {
       fields.push(`is_archived = $${index++}`);
-      values.push(updateData.is_archived);
+      values.push(updateData.archived);
     }
 
-    if (updateData.is_favorite !== undefined) {
+    if (updateData.favorite !== undefined) {
       fields.push(`is_favorite = $${index++}`);
-      values.push(updateData.is_favorite);
+      values.push(updateData.favorite);
     }
 
-    if (fields.length === 0) return null; // nada para atualizar
+    if (fields.length === 0) return null;
 
     fields.push(`updated_at = NOW()`);
 
@@ -40,23 +53,22 @@ export class ListRepository extends IListRepository {
     values.push(listId, ownerId);
 
     const { rows } = await this.db.query(query, values);
-    return rows[0];
+    if (!rows[0]) return null;
+
+    return this.mapToList(rows[0]);
   }
 
   async create(list) {
     const query = `
-       INSERT INTO lists (name, is_archived, is_favorite, owner_id)
-      VALUES ($1, $2, $3, $4)
+       INSERT INTO lists (name, owner_id)
+      VALUES ($1, $2)
       RETURNING id, name, is_archived, is_favorite, owner_id, created_at, updated_at
     `;
-
     const { rows } = await this.db.query(query, [
       list.name,
-      list.archived,
-      list.favorite,
-      list.owner.id
+      list.ownerId,
     ]);
-    return rows[0];
+    return this.mapToList(rows[0]);
   }
 
   async findById(listId, ownerId) {
@@ -72,7 +84,8 @@ export class ListRepository extends IListRepository {
     }
 
     const { rows } = await this.db.query(query, params);
-    return rows[0] || null;
+    if (rows.length === 0) return null;
+    return this.mapToList(rows[0]);
   }
 
   async getAllByOwner(ownerId) {
@@ -83,27 +96,28 @@ export class ListRepository extends IListRepository {
       ORDER BY created_at DESC
     `;
     const { rows } = await this.db.query(query, [ownerId]);
-    return rows;
+    return rows.map(row => this.mapToList(row));
   }
 
   async deleteListById(id, ownerId) {
     const query = `
     DELETE FROM lists
     WHERE id = $1 AND owner_id = $2
-    RETURNING id
+    RETURNING id, name, is_archived, is_favorite, owner_id, created_at, updated_at
   `;
     const { rows } = await this.db.query(query, [id, ownerId]);
-    return rows[0];
+    if (rows.length === 0) return null;
+    return this.mapToList(rows[0]);
   }
 
   async deleteLists(ownerId) {
     const query = `
     DELETE FROM lists
     WHERE owner_id = $1 AND is_archived = false AND is_favorite = false
-    RETURNING id
+    RETURNING id, name, is_archived, is_favorite, owner_id, created_at, updated_at
   `;
     const { rows } = await this.db.query(query, [ownerId]);
-    return rows;
+    return rows.map(row => this.mapToList(row));
   }
 
   async findByNameAndOwnerAndDateRange(name, ownerId, startOfDay, endOfDay) {

@@ -1,3 +1,4 @@
+import { OwnerDTO } from '../dto/ownerDTO.js';
 import { Owner } from '../entities/Owner.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -6,7 +7,7 @@ export class CreateOwnerUseCase {
     this.ownerRepository = ownerRepository;
   }
   async execute() {
-    const owner = new Owner({ id: uuidv4() });
-    return await this.ownerRepository.create(owner);
+    const owner = await this.ownerRepository.create(new Owner({ id: uuidv4() }))
+    return new OwnerDTO({ id: owner.id, lastActive: owner.lastActive });
   }
 }

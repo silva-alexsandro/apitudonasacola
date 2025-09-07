@@ -1,13 +1,11 @@
-import { isValidListName } from "../../../shared/utils/validators.js";
-
 export class List {
-  constructor({ name, owner }) {
-    if (!isValidListName(name)) {
-      throw new Error('O nome da lista deve ter pelo menos 3 caracteres');
-    }
-    this.name = name.trim();
-    this.owner = owner;
-    this.archived = false;
-    this.favorite = false;
+  constructor({ id, name, archived, favorite, ownerId, createdAt, updatedAt }) {
+    this.id = id;
+    this.name = name;
+    this.ownerId = ownerId;
+    this.archived = archived ;
+    this.favorite = favorite ;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 }

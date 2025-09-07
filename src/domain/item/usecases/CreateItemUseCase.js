@@ -6,14 +6,14 @@ import {
   isValidUnit,
   isValidCategoryId
 } from '../../../shared/utils/validators.js';
-
+import { ListItemDTO } from '../dto/ListItemDTO.js'
 export class CreateItemUseCase {
-  constructor(itemRepository, categoryRepository) {
-    this.itemRepository = itemRepository;
-    this.categoryRepository = categoryRepository;
+  constructor(itemRepo, listItemRepo, getCategoryById) {
+    this.itemRepo = itemRepo;
+    this.listItemRepo = listItemRepo;
+    this.getCategoryById = getCategoryById;
   }
-
-  async execute(listId, { name, price, unit, category_id, amount, done }) {
+  async execute(listId, { name, price, amount, unit, done, category_id }) {
     if (!isValidItemName(name)) {
       throw new Error('Nome do item é inválido (mínimo 3 caracteres).');
     }
@@ -30,33 +30,28 @@ export class CreateItemUseCase {
       throw new Error('Unidade inválida. Use uma das opções: G KG ML L UN DZ LATA GARRAFA CX PCT');
     }
 
-    if (!isValidCategoryId(category_id)) {
-      throw new Error('id da categoria é inválida.');
-    }
-    const categoryObj = await this.categoryRepository.findById(category_id);
-
-    if (!categoryObj) {
-      throw new Error('Categoria não encontrada. Use uma categoria existente.');
-    }
+    const categoryDTO = await this.getCategoryById.execute(category_id);
 
 
-    let item = await this.itemRepository.findByName(name);
+    let item = await this.itemRepo.findByName(name.toLowerCase());
     if (!item) {
-      item = await this.itemRepository.create(name.toLowerCase());
+      item = await this.itemRepo.create(name.toLowerCase());
     }
 
-    const relation = await this.itemRepository.findRelation(listId, item.id);
-    if (relation) {
-      throw new Error('Este item já está associado a esta lista.');
-    }
-    return await this.itemRepository.createRelation(
-      listId,
-      item.id,
-      price,
-      amount,
-      unit,
-      done,
-      category_id
+    const exists = await this.listItemRepo.findRelation(listId, item.id);
+    if (exists) throw new Error('Item já está na lista.');
+
+    const relation = await this.listItemRepo.createRelation(
+      listId, item.id, price, amount, unit, done, category_id
     );
+    return new ListItemDTO({
+      id: item.id,
+      name: item.name,
+      price: relation.price,
+      amount: relation.amount,
+      unit: relation.unit,
+      done: relation.done,
+      category: relation.category_id ? categoryDTO : null
+    });
   }
 }

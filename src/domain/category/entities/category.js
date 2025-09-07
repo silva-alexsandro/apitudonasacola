@@ -1,10 +1,9 @@
-import { isValidListName } from "../../../shared/utils/validators.js";
-
-export class Item {
-  constructor({ name }) {
-    if (!isValidListName(name)) {
-      throw new Error('O nome do item deve ter pelo menos 3 caracteres');
+export class Category {
+  constructor({ id, name }) {
+    if (!name || name.length < 2) {
+      throw new Error('Nome da categoria inválido.');
     }
-    this.name = name;
+    this.id = id;
+    this.name = name.trim().toLowerCase();
   }
 }

@@ -1,44 +1,38 @@
-import { List } from '../entities/List.js';
-import { BaseListUseCase } from '../../common/BaseListUseCase.js';
+import { isValidListName } from '../../../shared/utils/validators.js';
+import { ListDTO } from '../dto/ListDTO.js';
 
-export class CreateListUseCase extends BaseListUseCase {
-  constructor(deps) {
-    super(deps);
+export class CreateListUseCase {
+  constructor(listRepository) {
+    this.listRepository = listRepository;
   }
 
-  async validatedListNameExists(name, owner) {
+  async execute({ name, ownerId }) {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
     const existingList = await this.listRepository.findByNameAndOwnerAndDateRange(
       name,
-      owner,
+      ownerId,
       startOfDay,
       endOfDay
     );
     if (existingList) {
       throw new Error('Já existe uma lista com esse nome criada hoje.');
     }
-
-  }
-
-  async execute({ name, ownerId }) {
-    try {
-      let finalOwnerId = ownerId;
-      if (!ownerId) {
-        const newOwner = await this.ownerController.createOwner();
-        finalOwnerId = newOwner.id;
-      }
-      await this.validatedListNameExists(name, finalOwnerId);
-      const list = new List({ name, owner: { id: finalOwnerId } });
-      const result = await this.listRepository.create(list);
-      await this.ownerController.upLastActive(finalOwnerId)
-      return result;
-
-    } catch (err) {
-      console.error('Erro dentro de execute:', err);
-      throw new Error('Falha ao criar a lista.');
+    if (!isValidListName(name)) {
+      throw new Error('O nome da lista deve ter pelo menos 3 caracteres');
     }
+
+    const list = await this.listRepository.create({ name: name.trim(), ownerId });
+
+    return new ListDTO({
+      id: list.id,
+      name: list.name,
+      archived: list.archived,
+      favorite: list.favorite,
+      ownerId: list.ownerId,
+      createdAt: list.createdAt
+    });
   }
 }

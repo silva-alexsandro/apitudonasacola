@@ -13,14 +13,11 @@ export class ListController {
     try {
       const { name } = req.body;
       const ownerId = req.owner?.id;
-      const result = await this.createListUseCase.execute({ name, ownerId });
-      res.setHeader('owner_id', result.owner_id);
-      res.status(201).json(result);
+      const listDTO = await this.createListUseCase.execute({ name, ownerId });
+      res.setHeader('owner_id', listDTO.ownerId);
+      res.status(201).json(listDTO);
     } catch (err) {
-      if (err.message.includes('Já existe uma lista com esse nome criada hoje.')) {
-        return res.status(400).json({ error: err.message });
-      }
-      res.status(500).json({ error: 'Erro ao criar lista.' });
+      return res.status(400).json({ error: err.message });
     }
   };
 
@@ -30,7 +27,7 @@ export class ListController {
       const lists = await this.getAllListsUseCase.execute(ownerId);
       res.status(200).json(lists);
     } catch (err) {
-      res.status(500).json({ error: 'Erro ao buscar listas' });
+      res.status(404).json({ error: 'Erro ao buscar listas' });
     }
   };
 
@@ -38,63 +35,55 @@ export class ListController {
     try {
       const listId = req.params.id;
       const ownerId = req.owner.id;
-      const { name, is_archived, is_favorite } = req.body;
+      const { name, archived, favorite } = req.body;
 
-      if (isEmptyListUpdate(name, is_archived, is_favorite)) {
+      if (isEmptyListUpdate(name, archived, favorite)) {
         return res.status(400).json({ error: 'Nenhum campo enviado para atualização.' });
       }
 
       const updatedList = await this.updateListUseCase.execute(listId, ownerId, {
         name,
-        is_archived: parseBoolean(is_archived),
-        is_favorite: parseBoolean(is_favorite)
+        archived: parseBoolean(archived),
+        favorite: parseBoolean(favorite),
       });
 
       if (!updatedList) {
         return res.status(404).json({ error: 'Lista não encontrada ou não pertence ao usuário' });
       }
-
-      res.json(updatedList);
+      res.status(200).json(updatedList);
     } catch (error) {
-      console.error('Erro ao atualizar lista:', error);
       res.status(500).json({ error: 'Erro ao atualizar lista' });
     }
   };
 
-  deleteListById = async (req, res) => {
+  deleteList = async (req, res) => {
     try {
       const ownerId = req.owner.id;
-      const listId = req.params.id;
-      const deleted = await this.deleteListsUseCase.execute(listId, ownerId);
+      const listId = req.params.id || null;
 
-      if (!deleted) {
-        return res.status(404).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
+      const result = await this.deleteListsUseCase.execute(ownerId, listId);
+
+      if (listId) {
+        // Deletar lista específica
+        if (!result) {
+          return res.status(401).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
+        }
+
+        return res.status(200).json({ message: 'Lista deletada com sucesso.', id: result.id });
+      } else {
+        // Deletar todas as listas válidas
+        if (!result || result.length === 0) {
+          return res.status(200).json({ message: 'Nenhuma lista deletada. Todas estão arquivadas ou favoritas.' });
+        }
+
+        return res.status(200).json({
+          message: `${result.length} lista(s) deletada(s).`,
+          deletedIds: result.map(l => l.id)
+        });
       }
-
-      res.status(200).json({ message: 'Lista deletada com sucesso.', id: deleted.id });
     } catch (err) {
-      console.error('Erro ao deletar lista:', err);
-      res.status(500).json({ error: 'Erro ao deletar lista.' });
-    }
-  }
-
-  deleteAllList = async (req, res) => {
-    try {
-      const ownerId = req.owner.id;
-
-      const deletedLists = await this.deleteListsUseCase.execute(ownerId);
-
-      if (!deletedLists || deletedLists.length === 0) {
-        return res.status(200).json({ message: 'Nenhuma lista deletada. Todas estão arquivadas ou favoritas.' });
-      }
-
-      res.status(200).json({
-        message: `${deletedLists.length} lista(s) deletada(s).`,
-        deletedIds: deletedLists.map(l => l.id)
-      });
-    } catch (err) {
-      console.error('Erro ao deletar listas:', err);
-      res.status(500).json({ error: 'Erro ao deletar listas.' });
+      console.error('Erro ao deletar lista(s):', err);
+      return res.status(500).json({ error: 'Erro ao deletar lista(s).' });
     }
   };
 }
