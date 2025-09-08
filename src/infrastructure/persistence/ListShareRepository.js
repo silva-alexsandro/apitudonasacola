@@ -1,3 +1,4 @@
+import { ListShare } from "../../domain/list/entities/ListShare.js";
 import { IListShareRepository } from "../../domain/list/repositories/IListShareRepository.js";
 
 
@@ -16,11 +17,35 @@ export class ListShareRepository extends IListShareRepository {
       listShare.list_id,
       listShare.token,
       listShare.permission,
-      listShare.expires_at,
-      listShare.created_at,
+      listShare.expiresAt,
+      listShare.createdAt,
     ];
 
-    const result = await this.db.query(query, values);
-    return result.rows[0];
+    const { rows } = await this.db.query(query, values);
+    return new ListShare(rows[0]);
   }
+
+  async findByListId(list_id) {
+  const query = `
+    SELECT * FROM list_shares WHERE list_id = $1;
+  `;
+  const { rows } = await this.db.query(query, [list_id]);
+
+  if (rows.length === 0) return null;
+
+  return new ListShare(rows[0]);
+}
+
+
+  async findByToken(token) {
+    const query = `
+    SELECT * FROM list_shares WHERE token = $1;
+  `;
+    const { rows } = await this.db.query(query, [token]);
+
+    if (rows.length === 0) return null;
+
+    return new ListShare(rows[0]);
+  }
+
 }

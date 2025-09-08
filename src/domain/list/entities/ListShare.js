@@ -1,13 +1,14 @@
 import { getNewDate, getTomorrow } from '../../../shared/utils/handleDate.js';
 import { v4 as uuidv4 } from 'uuid';
+
 export class ListShare {
   constructor({ id, list_id, token, permission, expires_at, created_at }) {
     this.id = id;
     this.list_id = list_id;
     this.token = token;
     this.permission = permission;
-    this.expires_at = expires_at;
-    this.created_at = created_at;
+    this.expiresAt = expires_at;
+    this.createdAt = created_at;
   }
 
   static create({ list_id, permission }) {

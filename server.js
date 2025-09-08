@@ -4,6 +4,7 @@ import listRoutes from './src/interfaces/routes/listRoutes.js';
 import itemRoutes from './src/interfaces/routes/itemRoutes.js';
 import statsRoutes from './src/interfaces/routes/statsRoutes.js';
 import categoryRoutes from './src/interfaces/routes/categoryRoutes.js';
+import listShareRoutes from './src/interfaces/routes/listShareRoutes.js';
 
 const app = express();
 
@@ -15,8 +16,9 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/list', listRoutes);
+app.use('/list/share', listShareRoutes);
 app.use('/list/:listId', itemRoutes);
+app.use('/list', listRoutes);
 app.use('/stats', statsRoutes);
 app.use('/category', categoryRoutes);
 

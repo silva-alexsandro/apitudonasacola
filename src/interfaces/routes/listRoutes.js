@@ -11,7 +11,4 @@ router.put('/:id', ownerMiddleware, listController.updateList);
 router.delete('/:id', ownerMiddleware, listController.deleteList);
 router.delete('/', ownerMiddleware, listController.deleteList);
 
-router.post('/share', ownerMiddleware, listController.createShare);
-
-
 export default router;

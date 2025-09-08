@@ -1,14 +1,14 @@
-import { ListShareDTO } from "../../domain/list/dto/ListShareDTO.js";
 import { parseBoolean } from "../../shared/utils/parsers.js";
 import { isEmptyListUpdate } from "../../shared/utils/validators.js";
 
 export class ListController {
-  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase, createShare) {
+  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase, createShare, getShareList) {
     this.createListUseCase = createListUseCase;
     this.getAllListsUseCase = getAllListsUseCase;
     this.updateListUseCase = updateListUseCase;
     this.deleteListsUseCase = deleteListsUseCase;
     this.createListShare = createShare;
+    this.getSharedListUseCase = getShareList;
   }
 
   createList = async (req, res) => {
@@ -91,12 +91,23 @@ export class ListController {
 
   createShare = async (req, res) => {
     try {
-      const ownerId = req.owner?.id;
-      const dto = new ListShareDTO(req.body);
-      const listShareDTO = await this.createListShare.execute(dto);
+      const { list_id, permission } = req.body;
+      const listShareDTO = await this.createListShare.start({ list_id, permission });
       res.status(201).json(listShareDTO);
     } catch (err) {
       return res.status(400).json({ error: err.message });
+    }
+  };
+
+  getSharedList = async (req, res) => {
+    try {
+      const token = req.params.token;
+
+      const sharedData = await this.getSharedListUseCase.execute(token);
+
+      res.status(200).json(sharedData);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
     }
   };
 }

@@ -8,12 +8,22 @@ import { DeleteListsUseCase } from '../../domain/list/usecases/DeleteListUseCase
 import { ListShareRepository } from '../../infrastructure/persistence/ListShareRepository.js';
 import { CreateListShareUseCase } from '../../domain/list/usecases/CreateListShareUseCase.js';
 
+import { ItemRepository } from '../../infrastructure/persistence/ItemRepository.js';
+import { GetSharedListUseCase } from '../../domain/list/usecases/GetSharedListUseCase.js';
+import { ListItemRepository } from '../../infrastructure/persistence/ListItemRepository.js';
+
+
 export function makeListController() {
-  const listRepository = new ListRepository(new DbClient());
-  const listShareRepository = new ListShareRepository(new DbClient());
+  const dbClient = new DbClient();
+  const listRepository = new ListRepository(dbClient);
+  const listShareRepository = new ListShareRepository(dbClient);
+  const listItemRepo = new ListItemRepository(dbClient);
+
+
 
   /**List Share*/
   const createShare = new CreateListShareUseCase(listShareRepository);
+  const getShareList = new GetSharedListUseCase(listShareRepository, listRepository, listItemRepo);
 
   /**List */
   const createListUseCase = new CreateListUseCase(listRepository);
@@ -21,5 +31,6 @@ export function makeListController() {
   const updateListsUseCase = new UpdateListUseCase(listRepository);
   const deleteListsUseCase = new DeleteListsUseCase(listRepository);
 
-  return new ListController(createListUseCase, getAllListsUseCase, updateListsUseCase, deleteListsUseCase, createShare);
+  return new ListController(createListUseCase, getAllListsUseCase,
+    updateListsUseCase, deleteListsUseCase, createShare, getShareList);
 }
