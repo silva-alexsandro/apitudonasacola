@@ -26,15 +26,18 @@ export class ListShareRepository extends IListShareRepository {
   }
 
   async findByListId(list_id) {
-  const query = `
-    SELECT * FROM list_shares WHERE list_id = $1;
-  `;
-  const { rows } = await this.db.query(query, [list_id]);
+    const query = `
+      SELECT * FROM list_shares
+      WHERE list_id = $1
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `;
+    const { rows } = await this.db.query(query, [list_id]);
 
-  if (rows.length === 0) return null;
+    if (rows.length === 0) return null;
 
-  return new ListShare(rows[0]);
-}
+    return new ListShare(rows[0]);
+  }
 
 
   async findByToken(token) {

@@ -1,3 +1,5 @@
+import { isExpired } from "../../../shared/utils/handleDate.js";
+
 export class GetSharedListUseCase {
   constructor(listShareRepository, listRepository, listItemRepo) {
     this.listShareRepo = listShareRepository;
@@ -10,7 +12,7 @@ export class GetSharedListUseCase {
     const share = await this.listShareRepo.findByToken(token);
     if (!share) throw new Error('Compartilhamento não encontrado.');
 
-    if (share.expiresAt && share.expiresAt < new Date()) {
+    if (isExpired(share.expiresAt)) {
       throw new Error('Compartilhamento expirado.');
     }
 
@@ -18,11 +20,7 @@ export class GetSharedListUseCase {
     if (!list) throw new Error('Lista não encontrada.');
 
     const items = await this.liRepo.getItemsByListId(share.list_id);
-    console.log('',
-      list,
-      items,
-      share.permission,
-    )
+
     return {
       list,
       items,
