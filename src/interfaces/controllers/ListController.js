@@ -2,13 +2,11 @@ import { parseBoolean } from "../../shared/utils/parsers.js";
 import { isEmptyListUpdate } from "../../shared/utils/validators.js";
 
 export class ListController {
-  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase, createShare, getShareList) {
+  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase) {
     this.createListUseCase = createListUseCase;
     this.getAllListsUseCase = getAllListsUseCase;
     this.updateListUseCase = updateListUseCase;
     this.deleteListsUseCase = deleteListsUseCase;
-    this.createListShare = createShare;
-    this.getSharedListUseCase = getShareList;
   }
 
   createList = async (req, res) => {
@@ -86,28 +84,6 @@ export class ListController {
     } catch (err) {
       console.error('Erro ao deletar lista(s):', err);
       return res.status(500).json({ error: 'Erro ao deletar lista(s).' });
-    }
-  };
-
-  createShare = async (req, res) => {
-    try {
-      const { list_id, permission } = req.body;
-      const listShareDTO = await this.createListShare.start({ list_id, permission });
-      res.status(201).json(listShareDTO);
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-  };
-
-  getSharedList = async (req, res) => {
-    try {
-      const token = req.params.token;
-
-      const sharedData = await this.getSharedListUseCase.execute(token);
-
-      res.status(200).json(sharedData);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
     }
   };
 }

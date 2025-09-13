@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { ownerMiddleware } from '../middlewares/OwnerMiddleware.js';
+import { ownerMiddleware, requireOwnerId } from '../middlewares/OwnerMiddleware.js';
 import { makeItemController } from '../../app/factories/itemControllerFactory.js';
 
 const router = Router({ mergeParams: true });
 
 const itemController = makeItemController();
 
-router.post('/', ownerMiddleware, itemController.create);
-router.get('/', ownerMiddleware, itemController.getAll);
-router.put('/item/:id', ownerMiddleware, itemController.update);
-router.delete('/item/:id', ownerMiddleware, itemController.remove);
+router.use(requireOwnerId)
+router.post('/', itemController.create);
+router.get('/', itemController.getAll);
+router.put('/:id', itemController.update);
+router.delete('/:id', itemController.remove);
 
 export default router;

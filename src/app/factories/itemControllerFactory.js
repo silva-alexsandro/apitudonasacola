@@ -10,7 +10,12 @@ import { CategoryRepository } from '../../infrastructure/persistence/CategoryRep
 import { ListItemRepository } from '../../infrastructure/persistence/ListItemRepository.js';
 import { GetCategoryByIdUseCase } from '../../domain/category/usecases/GetCategoryByIdUseCase.js';
 
+let controller = null;
+
 export function makeItemController() {
+  if (controller) {
+    return controller;
+  }
   const dbClient = new DbClient();
 
   const listRepo = new ListRepository(dbClient);
@@ -21,8 +26,9 @@ export function makeItemController() {
   const getCategoryById = new GetCategoryByIdUseCase(categoryRepo);
   const create = new CreateItemUseCase(itemRepo, listItemRepo, getCategoryById);
   const getAll = new GetAllItemsUseCase(listRepo, listItemRepo);
-  const update = new UpdateItemUseCase(listRepo, listItemRepo, categoryRepo);
+  const update = new UpdateItemUseCase(listRepo, listItemRepo, getCategoryById);
   const remove = new DeleteItemsUseCase(listItemRepo, listRepo);
 
-  return new ItemController(create, getAll, update, remove);
+  controller = new ItemController(create, getAll, update, remove);
+  return controller;
 }

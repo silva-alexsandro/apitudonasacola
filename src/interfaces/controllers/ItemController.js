@@ -17,6 +17,7 @@ export class ItemController {
       res.status(400).json({ message: error.message });
     }
   }
+
   getAll = async (req, res, next) => {
     try {
       const { listId } = req.params;
@@ -64,4 +65,40 @@ export class ItemController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  /* ListShared */
+  addItemForListShared = async (req, res) => {
+    try {
+      const { listId } = req.sharedList;
+      const { name, price, amount, unit, category_id, done } = req.body;
+      const listItemDto = await this.createItem.execute(listId, { name, price, unit, category_id, amount, done });
+      res.status(201).json(listItemDto);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  updateItemForListShared = async (req, res, next) => {
+    try {
+      const { id: itemId } = req.params;
+      const { listId } = req.sharedList;
+      const updateData = req.body;
+      const ownerId = req.owner;
+
+      const updatedItemDTO = await this.updateItemUseCase.execute(
+        listId,
+        itemId,
+        updateData
+      );
+
+      if (!updatedItemDTO) {
+        return res.status(404).json({ error: 'Item não encontrado na lista' });
+      }
+
+      res.json(updatedItemDTO);
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }

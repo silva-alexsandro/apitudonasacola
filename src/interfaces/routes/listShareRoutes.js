@@ -1,9 +1,16 @@
 import { Router } from 'express';
-import { makeListController } from '../../app/factories/listControllerFactory.js';
+import { makeListShareController } from '../../app/factories/listShareControllerFactory.js';
+import { editPermissionMiddleware, sharedListMiddleware } from '../middlewares/shareListHandler.js';
+import { makeItemController } from '../../app/factories/itemControllerFactory.js';
 
-const router = Router();
-const listController = makeListController();
+const router = Router({ mergeParams: true });
+const itemController = makeItemController();
+const shareController = makeListShareController();
 
-router.get('/:token', listController.getSharedList);
-router.post('/', listController.createShare);
+router.post('/', shareController.createShare);
+
+router.get('/:token', sharedListMiddleware, shareController.getSharedList);
+router.post('/:token', sharedListMiddleware, editPermissionMiddleware, itemController.addItemForListShared);
+router.put('/:token/:id', sharedListMiddleware, editPermissionMiddleware, itemController.updateItemForListShared);
+
 export default router;

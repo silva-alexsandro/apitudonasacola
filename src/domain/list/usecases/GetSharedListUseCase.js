@@ -20,9 +20,12 @@ export class GetSharedListUseCase {
     if (!list) throw new Error('Lista não encontrada.');
 
     const items = await this.liRepo.getItemsByListId(share.list_id);
-
+    const listTemp = {
+      id: list.id,
+      name: list.name
+    }
     return {
-      list,
+      listTemp,
       items,
       permission: share.permission,
     };

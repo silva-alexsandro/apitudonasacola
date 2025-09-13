@@ -1,17 +1,17 @@
 export class ListItemDTO {
-  constructor({ listId, itemId, price, amount, unit, done, category_id, category_name }) {
-    this.listId = listId;
-    this.itemId = itemId;
+  constructor({ id, name, price, amount, unit, done, category }) {
+    this.id = id;
+    this.name = name;
     this.price = price;
     this.amount = amount;
     this.unit = unit;
     this.done = done;
-    this.category = category_id
+
+    this.category = category
       ? {
-        id: category_id,
-        name: category_name
+        id: category.id,
+        name: category.name
       }
       : null;
-
   }
 }
