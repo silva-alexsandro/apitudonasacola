@@ -8,9 +8,10 @@ const listController = makeListController();
 router.post('/', ownerMiddleware, listController.createList);
 
 router.use(requireOwnerId)
+router.post('/duplicate', listController.copyList);
 router.get('/', listController.getAllLists);
 router.put('/:id', listController.updateList);
 router.delete('/:id', listController.deleteList);
-router.delete('/all', listController.deleteList);
+router.delete('/', listController.deleteList);
 
 export default router;

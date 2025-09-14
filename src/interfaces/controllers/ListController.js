@@ -2,11 +2,12 @@ import { parseBoolean } from "../../shared/utils/parsers.js";
 import { isEmptyListUpdate } from "../../shared/utils/validators.js";
 
 export class ListController {
-  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase) {
+  constructor(createListUseCase, getAllListsUseCase, updateListUseCase, deleteListsUseCase, copyListUseCase) {
     this.createListUseCase = createListUseCase;
     this.getAllListsUseCase = getAllListsUseCase;
     this.updateListUseCase = updateListUseCase;
     this.deleteListsUseCase = deleteListsUseCase;
+    this.copyListUseCase = copyListUseCase;
   }
 
   createList = async (req, res) => {
@@ -64,14 +65,12 @@ export class ListController {
       const result = await this.deleteListsUseCase.execute(ownerId, listId);
 
       if (listId) {
-        // Deletar lista específica
         if (!result) {
           return res.status(401).json({ error: 'Lista não encontrada ou não pertence ao usuário.' });
         }
 
         return res.status(200).json({ message: 'Lista deletada com sucesso.', id: result.id });
       } else {
-        // Deletar todas as listas válidas
         if (!result || result.length === 0) {
           return res.status(200).json({ message: 'Nenhuma lista deletada. Todas estão arquivadas ou favoritas.' });
         }
@@ -86,4 +85,15 @@ export class ListController {
       return res.status(500).json({ error: 'Erro ao deletar lista(s).' });
     }
   };
+
+  copyList = async (req, res) => {
+    try {
+      const { id } = req.body;
+      const ownerId = req.owner.id;
+      const listDTO = await this.copyListUseCase.execute({ id, ownerId });
+      res.status(201).json(listDTO);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }

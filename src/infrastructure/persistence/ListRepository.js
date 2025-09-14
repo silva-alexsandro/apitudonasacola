@@ -90,8 +90,17 @@ export class ListRepository extends IListRepository {
 
   async getAllByOwner(ownerId) {
     const query = `
-      SELECT id, name, is_archived, is_favorite, owner_id, created_at, updated_at
-      FROM lists
+      SELECT * FROM lists
+      WHERE owner_id = $1
+      ORDER BY created_at DESC
+    `;
+    const { rows } = await this.db.query(query, [ownerId]);
+    return rows.map(row => this.mapToList(row));
+  }
+
+  async getAllNamesByOwner(ownerId) {
+    const query = `
+      SELECT name FROM lists
       WHERE owner_id = $1
       ORDER BY created_at DESC
     `;
