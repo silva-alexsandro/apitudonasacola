@@ -5,13 +5,13 @@ import { CategoryController } from '../../interfaces/controllers/CategoryControl
 let controller = null;
 
 export function makeCategoryController() {
-  if (controller) {
-    return controller;
-  }
-  const dbClient = new DbClient();
-  const categoryRepository = new CategoryRepository(dbClient);
-  const getAllCategoryUseCase = new GetAllCategoryUseCase(categoryRepository);
-
-  controller = new CategoryController(getAllCategoryUseCase);
+ if (controller) {
   return controller;
+ }
+ const dbClient = new DbClient();
+ const categoryRepository = new CategoryRepository(dbClient);
+ const getAllCategoryUseCase = new GetAllCategoryUseCase(categoryRepository);
+
+ controller = new CategoryController(getAllCategoryUseCase);
+ return controller;
 }

@@ -1,19 +1,19 @@
-import { StatsDTO } from "../dto/StatDTO.js";
-import { Stats } from "../entities/stat.js";
+import { StatsDTO } from '../dto/StatDTO.js';
+import { Stats } from '../entities/stat.js';
 
 export class GetStatsAllUseCase {
-  constructor(statsRepository,) {
-    this.statsRepository = statsRepository;
-  }
+ constructor(statsRepository) {
+  this.statsRepository = statsRepository;
+ }
 
-  async execute() {
-    const [owners, lists, items] = await Promise.all([
-      this.statsRepository.countAll('owners'),
-      this.statsRepository.countAll('lists'),
-      this.statsRepository.countAll('items'),
-    ]);
-    const stats = new Stats({ owners, lists, items });
+ async execute() {
+  const [owners, lists, items] = await Promise.all([
+   this.statsRepository.countAll('owners'),
+   this.statsRepository.countAll('lists'),
+   this.statsRepository.countAll('items'),
+  ]);
+  const stats = new Stats({ owners, lists, items });
 
-    return new StatsDTO(stats);
-  }
+  return new StatsDTO(stats);
+ }
 }

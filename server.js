@@ -13,19 +13,21 @@ import { errorHandler } from './src/interfaces/middlewares/errorHandler.js';
 const app = express();
 
 const allowedOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-  : ['*'];
+ ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
+ : ['*'];
 
-app.use(cors({
+app.use(
+ cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    callback(new Error('Not allowed by CORS'));
+   if (!origin || allowedOrigins.includes(origin)) {
+    return callback(null, true);
+   }
+   callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+ })
+);
 
 app.use(express.json());
 
@@ -37,7 +39,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`api on! http://localhost:${PORT}`);
+ console.log(`api on! http://localhost:${PORT}`);
 });
 
 export default app;

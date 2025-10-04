@@ -2,26 +2,34 @@ import { ListItem } from '../../domain/item/entities/ListItem.js';
 import { IListItemRepository } from '../../domain/item/repositories/IListItemRepository.js';
 
 export class ListItemRepository extends IListItemRepository {
-  constructor(dbClient) {
-    super();
-    this.db = dbClient;
-  }
-  _mapRowToListItem(row, listId = null) {
-    return new ListItem({
-      listId: listId || row.list_id,
-      itemId: row.item_id,
-      price: row.price,
-      amount: row.amount,
-      unit: row.unit,
-      done: row.done,
-      category_id: row.category_id,
-      category_name: row.category_name,
-      item_name: row.item_name
-    });
-  }
+ constructor(dbClient) {
+  super();
+  this.db = dbClient;
+ }
+ _mapRowToListItem(row, listId = null) {
+  return new ListItem({
+   listId: listId || row.list_id,
+   itemId: row.item_id,
+   price: row.price,
+   amount: row.amount,
+   unit: row.unit,
+   done: row.done,
+   category_id: row.category_id,
+   category_name: row.category_name,
+   item_name: row.item_name,
+  });
+ }
 
-  async createRelation(listId, itemId, price, amount, unit, done, categoryId = null) {
-    const query = `
+ async createRelation(
+  listId,
+  itemId,
+  price,
+  amount,
+  unit,
+  done,
+  categoryId = null
+ ) {
+  const query = `
       INSERT INTO list_items (list_id, item_id, price, amount, unit, done, category_id)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *,
@@ -29,15 +37,21 @@ export class ListItemRepository extends IListItemRepository {
         (SELECT name FROM items WHERE id = item_id) AS item_name
     `;
 
-    const { rows } = await this.db.query(query, [
-      listId, itemId, price, amount, unit, done, categoryId
-    ]);
+  const { rows } = await this.db.query(query, [
+   listId,
+   itemId,
+   price,
+   amount,
+   unit,
+   done,
+   categoryId,
+  ]);
 
-    return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
-  }
+  return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
+ }
 
-  async deleteItemFromList(listId, itemId) {
-    const query = `
+ async deleteItemFromList(listId, itemId) {
+  const query = `
       DELETE FROM list_items
       WHERE list_id = $1 AND item_id = $2
       RETURNING *,
@@ -45,13 +59,13 @@ export class ListItemRepository extends IListItemRepository {
         (SELECT name FROM items WHERE id = item_id) AS item_name
     `;
 
-    const { rows } = await this.db.query(query, [listId, itemId]);
+  const { rows } = await this.db.query(query, [listId, itemId]);
 
-    return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
-  }
+  return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
+ }
 
-  async findRelation(listId, itemId) {
-    const query = `
+ async findRelation(listId, itemId) {
+  const query = `
       SELECT li.*,
              i.name AS item_name,
              c.name AS category_name
@@ -61,13 +75,13 @@ export class ListItemRepository extends IListItemRepository {
       WHERE li.list_id = $1 AND li.item_id = $2
     `;
 
-    const { rows } = await this.db.query(query, [listId, itemId]);
+  const { rows } = await this.db.query(query, [listId, itemId]);
 
-    return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
-  }
+  return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
+ }
 
-  async getItemsByListId(listId) {
-    const query = `
+ async getItemsByListId(listId) {
+  const query = `
       SELECT 
         li.*,
         i.name AS item_name,
@@ -78,37 +92,37 @@ export class ListItemRepository extends IListItemRepository {
       WHERE li.list_id = $1
     `;
 
-    const { rows } = await this.db.query(query, [listId]);
+  const { rows } = await this.db.query(query, [listId]);
 
-    return rows.map(row => this._mapRowToListItem(row, listId));
-  }
+  return rows.map((row) => this._mapRowToListItem(row, listId));
+ }
 
-  async update(listId, itemId, updateData) {
-    const fields = [];
-    const values = [];
-    let index = 1;
+ async update(listId, itemId, updateData) {
+  const fields = [];
+  const values = [];
+  let index = 1;
 
-    const fieldMappings = {
-      price: 'price',
-      amount: 'amount',
-      done: 'done',
-      unit: 'unit',
-      category_id: 'category_id'
-    };
+  const fieldMappings = {
+   price: 'price',
+   amount: 'amount',
+   done: 'done',
+   unit: 'unit',
+   category_id: 'category_id',
+  };
 
-    Object.keys(fieldMappings).forEach(key => {
-      if (updateData[key] !== undefined) {
-        fields.push(`${fieldMappings[key]} = $${index}`);
-        values.push(updateData[key]);
-        index++;
-      }
-    });
+  Object.keys(fieldMappings).forEach((key) => {
+   if (updateData[key] !== undefined) {
+    fields.push(`${fieldMappings[key]} = $${index}`);
+    values.push(updateData[key]);
+    index++;
+   }
+  });
 
-    if (fields.length === 0) return null;
+  if (fields.length === 0) return null;
 
-    fields.push(`updated_at = NOW()`);
+  fields.push(`updated_at = NOW()`);
 
-    const query = `
+  const query = `
     UPDATE list_items
     SET ${fields.join(', ')}
     WHERE list_id = $${index} AND item_id = $${index + 1}
@@ -117,10 +131,10 @@ export class ListItemRepository extends IListItemRepository {
         (SELECT name FROM items WHERE id = item_id) AS item_name
   `;
 
-    values.push(listId, itemId);
+  values.push(listId, itemId);
 
-    const { rows } = await this.db.query(query, values);
+  const { rows } = await this.db.query(query, values);
 
-    return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
-  }
+  return rows[0] ? this._mapRowToListItem(rows[0], listId) : null;
+ }
 }

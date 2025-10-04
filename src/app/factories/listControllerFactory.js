@@ -11,21 +11,26 @@ import { ListItemRepository } from '../../infrastructure/persistence/ListItemRep
 let controller = null;
 
 export function makeListController() {
-  if (controller) {
-    return controller;
-  }
-  const dbClient = new DbClient();
-  const listRepository = new ListRepository(dbClient);
-  const listItemRepo = new ListItemRepository(dbClient);
-
-  const createListUseCase = new CreateListUseCase(listRepository);
-  const getAllListsUseCase = new GetAllListsUseCase(listRepository);
-  const updateListsUseCase = new UpdateListUseCase(listRepository);
-  const deleteListsUseCase = new DeleteListsUseCase(listRepository);
-  const copyListUseCase = new DuplicateListUseCase(listRepository, listItemRepo);
-
-  controller = new ListController(createListUseCase, getAllListsUseCase,
-    updateListsUseCase, deleteListsUseCase, copyListUseCase);
-
+ if (controller) {
   return controller;
+ }
+ const dbClient = new DbClient();
+ const listRepository = new ListRepository(dbClient);
+ const listItemRepo = new ListItemRepository(dbClient);
+
+ const createListUseCase = new CreateListUseCase(listRepository);
+ const getAllListsUseCase = new GetAllListsUseCase(listRepository);
+ const updateListsUseCase = new UpdateListUseCase(listRepository);
+ const deleteListsUseCase = new DeleteListsUseCase(listRepository);
+ const copyListUseCase = new DuplicateListUseCase(listRepository, listItemRepo);
+
+ controller = new ListController(
+  createListUseCase,
+  getAllListsUseCase,
+  updateListsUseCase,
+  deleteListsUseCase,
+  copyListUseCase
+ );
+
+ return controller;
 }

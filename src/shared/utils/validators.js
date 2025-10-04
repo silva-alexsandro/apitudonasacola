@@ -1,75 +1,88 @@
 export function isValidItemName(name) {
-  if (!name) return false;
-  if (typeof name !== 'string') return false;
-  if (name.trim().length < 3) return false;
-  return true;
+ if (!name) return false;
+ if (typeof name !== 'string') return false;
+ if (name.trim().length < 3) return false;
+ return true;
 }
 
 export function isValidCategoryId(categoryId) {
-  return categoryId === null || (Number.isInteger(categoryId) && categoryId > 0);
+ return categoryId === null || (Number.isInteger(categoryId) && categoryId > 0);
 }
 
 export function isValidCategoryName(name) {
-  if (!name) return false;
-  if (typeof name !== 'string') return false;
-  if (name.trim().length < 2) return false;
-  if (name.trim().length > 100) return false;
-  return true;
+ if (!name) return false;
+ if (typeof name !== 'string') return false;
+ if (name.trim().length < 2) return false;
+ if (name.trim().length > 100) return false;
+ return true;
 }
 export function isValidPrice(price) {
-  return typeof price === 'number' && price >= 0;
+ return typeof price === 'number' && price >= 0;
 }
 
 export function isValidAmount(amount) {
-  return Number.isInteger(amount) && amount >= 1;
+ return Number.isInteger(amount) && amount >= 1;
 }
 
 export function isValidDone(done) {
-  return typeof done === 'boolean';
+ return typeof done === 'boolean';
 }
 export function isValidUnit(unit) {
-  const allowedUnits = ['g', 'kg', 'ml', 'l', 'un', 'dz', 'lata', 'garrafa', 'cx', 'pct'];
-  return typeof unit === 'string' && allowedUnits.includes(unit);
+ const allowedUnits = [
+  'g',
+  'kg',
+  'ml',
+  'l',
+  'un',
+  'dz',
+  'lata',
+  'garrafa',
+  'cx',
+  'pct',
+ ];
+ return typeof unit === 'string' && allowedUnits.includes(unit);
 }
 
 export function isValidListName(name) {
-  if (!name) return false;
-  if (typeof name !== 'string') return false;
-  if (name.trim().length < 3) return false;
-  return true;
+ if (!name) return false;
+ if (typeof name !== 'string') return false;
+ if (name.trim().length < 3) return false;
+ return true;
 }
 
 export function isEmptyListUpdate(name, is_archived, is_favorite) {
-  return name === undefined &&
-    is_archived === undefined &&
-    is_favorite === undefined;
+ return (
+  name === undefined && is_archived === undefined && is_favorite === undefined
+ );
 }
 
 export function isEmptyItemUpdate(data) {
-  if (!data || typeof data !== 'object') return true;
-  const validKeys = ['price', 'amount', 'done', 'unit', 'category_id'];
-  return !validKeys.some(key => key in data);
+ if (!data || typeof data !== 'object') return true;
+ const validKeys = ['price', 'amount', 'done', 'unit', 'category_id'];
+ return !validKeys.some((key) => key in data);
 }
 export function validateItemUpdate(data) {
-  if (isEmptyItemUpdate(data)) {
-    throw new Error('Nenhum campo válido para atualizar.');
-  }
+ if (isEmptyItemUpdate(data)) {
+  throw new Error('Nenhum campo válido para atualizar.');
+ }
 
-  if (data.price !== undefined && !isValidPrice(data.price)) {
-    throw new Error('Preço deve ser um número positivo.');
-  }
+ if (data.price !== undefined && !isValidPrice(data.price)) {
+  throw new Error('Preço deve ser um número positivo.');
+ }
 
-  if (data.amount !== undefined && !isValidAmount(data.amount)) {
-    throw new Error('Quantidade deve ser um inteiro maior ou igual a 1.');
-  }
+ if (data.amount !== undefined && !isValidAmount(data.amount)) {
+  throw new Error('Quantidade deve ser um inteiro maior ou igual a 1.');
+ }
 
-  if (data.done !== undefined && !isValidDone(data.done)) {
-    throw new Error('O campo "done" deve ser verdadeiro ou falso.');
-  }
-    if (data.category !== undefined && !isValidCategoryId(data.category)) {
-    throw new Error('ID da categoria é inválido.');
-  }
-  if (data.unit !== undefined && !isValidUnit(data.unit)) {
-    throw new Error('Unidade inválida. Use uma das opções: G, KG, ML, L, UN, DZ, PC, CX, PCT.');
-  }
+ if (data.done !== undefined && !isValidDone(data.done)) {
+  throw new Error('O campo "done" deve ser verdadeiro ou falso.');
+ }
+ if (data.category !== undefined && !isValidCategoryId(data.category)) {
+  throw new Error('ID da categoria é inválido.');
+ }
+ if (data.unit !== undefined && !isValidUnit(data.unit)) {
+  throw new Error(
+   'Unidade inválida. Use uma das opções: G, KG, ML, L, UN, DZ, PC, CX, PCT.'
+  );
+ }
 }

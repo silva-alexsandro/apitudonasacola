@@ -4,9 +4,9 @@ import { StatsRepository } from '../../infrastructure/persistence/StatsRepositor
 import { StatsController } from '../../interfaces/controllers/statsController.js';
 
 export function makeStatsController() {
-  const statsRepository = new StatsRepository(new DbClient());
+ const statsRepository = new StatsRepository(new DbClient());
 
-  const getStatsAllUseCase = new GetStatsAllUseCase(statsRepository);
+ const getStatsAllUseCase = new GetStatsAllUseCase(statsRepository);
 
-  return new StatsController(getStatsAllUseCase);
+ return new StatsController(getStatsAllUseCase);
 }

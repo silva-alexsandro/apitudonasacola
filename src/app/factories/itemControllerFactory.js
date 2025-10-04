@@ -13,22 +13,22 @@ import { GetCategoryByIdUseCase } from '../../domain/category/usecases/GetCatego
 let controller = null;
 
 export function makeItemController() {
-  if (controller) {
-    return controller;
-  }
-  const dbClient = new DbClient();
-
-  const listRepo = new ListRepository(dbClient);
-  const itemRepo = new ItemRepository(dbClient);
-  const listItemRepo = new ListItemRepository(dbClient);
-  const categoryRepo = new CategoryRepository(dbClient);
-
-  const getCategoryById = new GetCategoryByIdUseCase(categoryRepo);
-  const create = new CreateItemUseCase(itemRepo, listItemRepo, getCategoryById);
-  const getAll = new GetAllItemsUseCase(listRepo, listItemRepo);
-  const update = new UpdateItemUseCase(listRepo, listItemRepo, getCategoryById);
-  const remove = new DeleteItemsUseCase(listItemRepo, listRepo);
-
-  controller = new ItemController(create, getAll, update, remove);
+ if (controller) {
   return controller;
+ }
+ const dbClient = new DbClient();
+
+ const listRepo = new ListRepository(dbClient);
+ const itemRepo = new ItemRepository(dbClient);
+ const listItemRepo = new ListItemRepository(dbClient);
+ const categoryRepo = new CategoryRepository(dbClient);
+
+ const getCategoryById = new GetCategoryByIdUseCase(categoryRepo);
+ const create = new CreateItemUseCase(itemRepo, listItemRepo, getCategoryById);
+ const getAll = new GetAllItemsUseCase(listRepo, listItemRepo);
+ const update = new UpdateItemUseCase(listRepo, listItemRepo, getCategoryById);
+ const remove = new DeleteItemsUseCase(listItemRepo, listRepo);
+
+ controller = new ItemController(create, getAll, update, remove);
+ return controller;
 }

@@ -3,7 +3,7 @@ import { makeStatsController } from '../../app/factories/statsControllerFactory.
 
 const router = Router({ mergeParams: true });
 
-const stats = makeStatsController(); 
+const stats = makeStatsController();
 
 router.get('/', stats.getAllStats);
 
