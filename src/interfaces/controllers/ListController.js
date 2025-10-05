@@ -4,7 +4,7 @@ import { isEmptyListUpdate } from '../../shared/utils/validators.js';
 export class ListController {
  constructor(
   createListUseCase,
-  getAllListsUseCase,
+  getAll,
   updateListUseCase,
   deleteListsUseCase,
   getAllListsArchivedUseCase,
@@ -12,7 +12,7 @@ export class ListController {
   copyListUseCase
  ) {
   this.createListUseCase = createListUseCase;
-  this.getAllListsUseCase = getAllListsUseCase;
+  this.allList = getAll;
   this.getAllListsArchivedUseCase = getAllListsArchivedUseCase;
   this.getById = getByIdList;
   this.updateListUseCase = updateListUseCase;
@@ -35,12 +35,13 @@ export class ListController {
  getAllLists = async (req, res) => {
   try {
    const ownerId = req.owner.id;
-   const lists = await this.getAllListsUseCase.execute(ownerId);
+   const lists = await this.allList.execute(ownerId);
    res.status(200).json(lists);
   } catch (err) {
    res.status(404).json({ error: 'Erro ao buscar listas' });
   }
  };
+
  getAllListsArchived = async (req, res) => {
   try {
    const ownerId = req.owner.id;
@@ -50,12 +51,15 @@ export class ListController {
    res.status(404).json({ error: 'Erro ao buscar listas' });
   }
  };
+
  getByIdList = async (req, res) => {
   try {
    const listId = req.params.id;
    const ownerId = req.owner.id;
-   const lists = await this.getById.execute(listId,ownerId);
-   res.status(200).json(lists);
+
+   const list = await this.getById.execute(listId, ownerId);
+
+   res.status(200).json(list);
   } catch (err) {
    res.status(404).json({ error: 'Erro ao buscar listas' });
   }
@@ -120,7 +124,6 @@ export class ListController {
     });
    }
   } catch (err) {
-   console.error('Erro ao deletar lista(s):', err);
    return res.status(500).json({ error: 'Erro ao deletar lista(s).' });
   }
  };

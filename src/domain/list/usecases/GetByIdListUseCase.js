@@ -5,8 +5,13 @@ export class GetByIdListUseCase {
   this.listRepository = listRepository;
  }
  async execute(listId, ownerId = undefined) {
-  
-  const lists = await this.listRepository.findById(listId, ownerId);
-  return lists.map((list) => new ListDTO(list));
+  console.log('[usecase get by id]');
+  console.log('ow - ', ownerId);
+
+  const list = await this.listRepository.findById(listId, ownerId);
+
+  console.log('ow - ', list);
+
+  return new ListDTO(list);
  }
 }

@@ -21,7 +21,7 @@ export function makeListController() {
  const listItemRepo = new ListItemRepository(dbClient);
 
  const createListUseCase = new CreateListUseCase(listRepository);
- const getAllListsUseCase = new GetAllListsUseCase(listRepository);
+ const getAll = new GetAllListsUseCase(listRepository);
  const getByIdList = new GetByIdListUseCase(listRepository);
  const getAllListsArchivedUseCase = new GetAllListsArchivedUseCase(
   listRepository
@@ -32,11 +32,11 @@ export function makeListController() {
 
  controller = new ListController(
   createListUseCase,
-  getByIdList,
-  getAllListsUseCase,
+  getAll,
   updateListsUseCase,
   deleteListsUseCase,
   getAllListsArchivedUseCase,
+  getByIdList,
   copyListUseCase
  );
 

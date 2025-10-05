@@ -5,7 +5,11 @@ export class GetAllListsUseCase {
   this.listRepository = listRepository;
  }
  async execute(ownerId) {
-  const lists = await this.listRepository.getAllByOwner(ownerId);
-  return lists.map((list) => new ListDTO(list));
+  try {
+   const lists = await this.listRepository.getAllByOwner(ownerId);
+   return lists.map((list) => new ListDTO(list));
+  } catch (err) {
+   throw err;
+  }
  }
 }
