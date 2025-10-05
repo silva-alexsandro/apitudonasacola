@@ -78,7 +78,7 @@ export class ListRepository extends IListRepository {
 
  async findById(listId, ownerId) {
   let query = `
-    SELECT id, name, is_archived, is_favorite, owner_id, created_at, updated_at
+    SELECT *
     FROM lists
     WHERE id = $1
   `;
@@ -96,7 +96,17 @@ export class ListRepository extends IListRepository {
  async getAllByOwner(ownerId) {
   const query = `
       SELECT * FROM lists
-      WHERE owner_id = $1
+      WHERE owner_id = $1 AND archived = false
+      ORDER BY created_at DESC
+    `;
+  const { rows } = await this.db.query(query, [ownerId]);
+  return rows.map((row) => this.mapToList(row));
+ }
+
+ async getAllArchivedByOwner(ownerId) {
+  const query = `
+      SELECT * FROM lists
+      WHERE owner_id = $1 AND archived = true
       ORDER BY created_at DESC
     `;
   const { rows } = await this.db.query(query, [ownerId]);

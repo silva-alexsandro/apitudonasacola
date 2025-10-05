@@ -7,10 +7,14 @@ export class ListController {
   getAllListsUseCase,
   updateListUseCase,
   deleteListsUseCase,
+  getAllListsArchivedUseCase,
+  getByIdList,
   copyListUseCase
  ) {
   this.createListUseCase = createListUseCase;
   this.getAllListsUseCase = getAllListsUseCase;
+  this.getAllListsArchivedUseCase = getAllListsArchivedUseCase;
+  this.getById = getByIdList;
   this.updateListUseCase = updateListUseCase;
   this.deleteListsUseCase = deleteListsUseCase;
   this.copyListUseCase = copyListUseCase;
@@ -32,6 +36,25 @@ export class ListController {
   try {
    const ownerId = req.owner.id;
    const lists = await this.getAllListsUseCase.execute(ownerId);
+   res.status(200).json(lists);
+  } catch (err) {
+   res.status(404).json({ error: 'Erro ao buscar listas' });
+  }
+ };
+ getAllListsArchived = async (req, res) => {
+  try {
+   const ownerId = req.owner.id;
+   const lists = await this.getAllListsArchivedUseCase.execute(ownerId);
+   res.status(200).json(lists);
+  } catch (err) {
+   res.status(404).json({ error: 'Erro ao buscar listas' });
+  }
+ };
+ getByIdList = async (req, res) => {
+  try {
+   const listId = req.params.id;
+   const ownerId = req.owner.id;
+   const lists = await this.getById.execute(listId,ownerId);
    res.status(200).json(lists);
   } catch (err) {
    res.status(404).json({ error: 'Erro ao buscar listas' });
@@ -86,11 +109,9 @@ export class ListController {
      .json({ message: 'Lista deletada com sucesso.', id: result.id });
    } else {
     if (!result || result.length === 0) {
-     return res
-      .status(200)
-      .json({
-       message: 'Nenhuma lista deletada. Todas estão arquivadas ou favoritas.',
-      });
+     return res.status(200).json({
+      message: 'Nenhuma lista deletada. Todas estão arquivadas ou favoritas.',
+     });
     }
 
     return res.status(200).json({

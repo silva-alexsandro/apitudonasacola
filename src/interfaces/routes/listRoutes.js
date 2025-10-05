@@ -12,6 +12,8 @@ router.post('/', ownerMiddleware, listController.createList);
 
 router.use(requireOwnerId);
 router.post('/duplicate', listController.copyList);
+router.get('/id', listController.getByIdList);
+router.get('/archived', listController.getAllListsArchived);
 router.get('/', listController.getAllLists);
 router.put('/:id', listController.updateList);
 router.delete('/:id', listController.deleteList);

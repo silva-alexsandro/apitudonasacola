@@ -65,8 +65,15 @@ export async function requireOwnerId(req, res, next) {
   req.owner = await fetchRequiredOwner(req);
   next();
  } catch (err) {
-  res.status(err.status || 500).json({
-   error: err.message || 'Erro interno no middleware de owner.',
+  //   res.status(err.status || 500).json({
+  //    error: err.message || 'Erro interno no middleware de owner.',
+  //   });
+
+  const statusCode = err.status || 500;
+  const message = err.message || 'Erro interno no middleware de owner.';
+
+  res.status(statusCode).json({
+   error: message,
   });
  }
 }
